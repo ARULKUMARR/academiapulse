@@ -1,1227 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AcademiaPulse | Modern Student Academic Tracker</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>" />
-  
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Tailwind CSS v3 CDN -->
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S. D. Sion Matriculation Hr. Sec. School | Portal Login</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#F0F5FF',
-              100: '#E0EAFF',
-              500: '#6366F1',
-              600: '#4F46E5',
-              700: '#4338CA',
-              900: '#1E1B4B',
-            },
-            navy: {
-              800: '#1E293B',
-              900: '#0F172A',
-              950: '#0B0F19',
-            }
-          },
-          fontFamily: {
-            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
-  
-  <!-- SheetJS XLSX CDN for Excel Parsing & Generation -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-  <!-- React 18 & ReactDOM CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  
-  <!-- Babel Standalone CDN -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
   <style>
-    body {
-      background-color: #0b0f19;
-      color: #f8fafc;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.3);
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.6);
-    }
-    .glass-panel {
-      background: rgba(30, 41, 59, 0.65);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .glass-card-hover {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .glass-card-hover:hover {
-      transform: translateY(-2px);
-      border-color: rgba(99, 102, 241, 0.3);
-      box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.2);
-    }
-    .gradient-text {
-      background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #f472b6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    @keyframes pulse-subtle {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-    .animate-pulse-subtle {
-      animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    @media print {
-      body { background: white !important; color: black !important; }
-      .no-print { display: none !important; }
-    }
+    *{font-family:'Plus Jakarta Sans',sans-serif}
+    body{background:#06091a}
+    .glass{background:rgba(15,23,42,.85);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07)}
+    .school-banner{background:linear-gradient(135deg,#0a1628 0%,#0f2044 40%,#0a1628 100%);border-bottom:3px solid #b8860b}
+    .gmail-input{transition:all .2s;border:2px solid rgba(255,255,255,.06)}
+    .gmail-input:focus{border-color:#4285f4;box-shadow:0 0 0 4px rgba(66,133,244,.15);outline:none}
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen text-white flex flex-col">
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
 
-  <div id="root"></div>
+const DEFAULT_STUDENTS_10 = [
+  { studentId:"STU-1001", name:"Alex Johnson",    standard:"10", section:"A", gmail:"alex.johnson@gmail.com",     rollNo:"10-A-01", attendance:94.5, avatarUrl:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80" },
+  { studentId:"STU-1002", name:"Sophia Chen",     standard:"10", section:"B", gmail:"sophia.chen@gmail.com",      rollNo:"10-B-02", attendance:98.0, avatarUrl:"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80" },
+  { studentId:"STU-1006", name:"Priya Sharma",    standard:"10", section:"A", gmail:"priya.sharma@gmail.com",     rollNo:"10-A-06", attendance:91.0, avatarUrl:"https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&q=80" },
+];
 
-  <!-- React Application Logic -->
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+const DEFAULT_STUDENTS_12 = [
+  { studentId:"STU-1003", name:"Marcus Vance",    group:"Computer Science", section:"A", gmail:"marcus.vance@gmail.com",     rollNo:"12-A-03", attendance:88.2, avatarUrl:"https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&q=80" },
+  { studentId:"STU-1004", name:"Emily Davis",     group:"Bio-Maths",        section:"B", gmail:"emily.davis@gmail.com",      rollNo:"12-B-04", attendance:76.5, avatarUrl:"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" },
+  { studentId:"STU-1008", name:"Ananya Rao",      group:"Commerce",         section:"C", gmail:"ananya.rao@gmail.com",       rollNo:"12-C-08", attendance:96.0, avatarUrl:"https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80" },
+];
 
-    // --- INITIAL MOCK DATA ---
-    const INITIAL_STUDENTS = [
-      {
-        studentId: "STU-1001",
-        name: "Alex Johnson",
-        grade: "Grade 11-A",
-        attendance: 94.5,
-        avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
-      },
-      {
-        studentId: "STU-1002",
-        name: "Sophia Chen",
-        grade: "Grade 11-A",
-        attendance: 98.0,
-        avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
-      },
-      {
-        studentId: "STU-1003",
-        name: "Marcus Vance",
-        grade: "Grade 11-B",
-        attendance: 88.2,
-        avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80"
-      },
-      {
-        studentId: "STU-1004",
-        name: "Emily Davis",
-        grade: "Grade 10-C",
-        attendance: 76.5,
-        avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
-      },
-      {
-        studentId: "STU-1005",
-        name: "Liam Wilson",
-        grade: "Grade 12-A",
-        attendance: 92.0,
-        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"
-      }
-    ];
+function quickLogin10(studentId){
+  const match = DEFAULT_STUDENTS_10.find(s=>s.studentId===studentId);
+  if(match){
+    localStorage.setItem('ap_auth','student');
+    localStorage.setItem('ap_current_student',match.studentId);
+    localStorage.setItem('ap_current_gmail',match.gmail);
+    window.location.href = 'student10.html';
+  }
+}
 
-    const INITIAL_MARKS = [
-      // Alex Johnson (STU-1001)
-      { studentId: "STU-1001", subject: "Mathematics", examType: "Unit Test 1", marksObtained: 48, maxMarks: 50, date: "2026-06-15" },
-      { studentId: "STU-1001", subject: "Physics", examType: "Unit Test 1", marksObtained: 42, maxMarks: 50, date: "2026-06-18" },
-      { studentId: "STU-1001", subject: "Computer Science", examType: "Unit Test 1", marksObtained: 50, maxMarks: 50, date: "2026-06-20" },
-      { studentId: "STU-1001", subject: "English Literature", examType: "Unit Test 1", marksObtained: 41, maxMarks: 50, date: "2026-06-22" },
-      { studentId: "STU-1001", subject: "Chemistry", examType: "Unit Test 1", marksObtained: 44, maxMarks: 50, date: "2026-06-25" },
-      
-      { studentId: "STU-1001", subject: "Mathematics", examType: "Mid-Term", marksObtained: 92, maxMarks: 100, date: "2026-07-10" },
-      { studentId: "STU-1001", subject: "Physics", examType: "Mid-Term", marksObtained: 88, maxMarks: 100, date: "2026-07-12" },
-      { studentId: "STU-1001", subject: "Computer Science", examType: "Mid-Term", marksObtained: 98, maxMarks: 100, date: "2026-07-14" },
-      { studentId: "STU-1001", subject: "English Literature", examType: "Mid-Term", marksObtained: 85, maxMarks: 100, date: "2026-07-16" },
-      { studentId: "STU-1001", subject: "Chemistry", examType: "Mid-Term", marksObtained: 90, maxMarks: 100, date: "2026-07-18" },
+function quickLogin12(studentId){
+  const match = DEFAULT_STUDENTS_12.find(s=>s.studentId===studentId);
+  if(match){
+    localStorage.setItem('ap_auth','student');
+    localStorage.setItem('ap_current_student',match.studentId);
+    localStorage.setItem('ap_current_gmail',match.gmail);
+    window.location.href = 'student12.html';
+  }
+}
 
-      { studentId: "STU-1001", subject: "Mathematics", examType: "Final Exam", marksObtained: 95, maxMarks: 100, date: "2026-07-28" },
-      { studentId: "STU-1001", subject: "Computer Science", examType: "Final Exam", marksObtained: 100, maxMarks: 100, date: "2026-07-29" },
+function quickAdmin(){
+  localStorage.setItem('ap_auth','admin');
+  window.location.href = 'admin.html';
+}
 
-      // Sophia Chen (STU-1002)
-      { studentId: "STU-1002", subject: "Mathematics", examType: "Mid-Term", marksObtained: 99, maxMarks: 100, date: "2026-07-10" },
-      { studentId: "STU-1002", subject: "Physics", examType: "Mid-Term", marksObtained: 96, maxMarks: 100, date: "2026-07-12" },
-      { studentId: "STU-1002", subject: "Computer Science", examType: "Mid-Term", marksObtained: 97, maxMarks: 100, date: "2026-07-14" },
-      { studentId: "STU-1002", subject: "Chemistry", examType: "Mid-Term", marksObtained: 94, maxMarks: 100, date: "2026-07-18" },
+function App(){
+  const [role, setRole]=useState('std10');
+  const [gmail, setGmail]=useState('');
+  const [passcode, setPasscode]=useState('');
+  const [error, setError]=useState('');
 
-      // Marcus Vance (STU-1003)
-      { studentId: "STU-1003", subject: "Mathematics", examType: "Mid-Term", marksObtained: 74, maxMarks: 100, date: "2026-07-10" },
-      { studentId: "STU-1003", subject: "Physics", examType: "Mid-Term", marksObtained: 78, maxMarks: 100, date: "2026-07-12" },
-      { studentId: "STU-1003", subject: "English Literature", examType: "Mid-Term", marksObtained: 92, maxMarks: 100, date: "2026-07-16" },
+  const submit=e=>{
+    e.preventDefault();setError('');
+    const trimmed=gmail.trim().toLowerCase();
+    if(role==='std10'){
+      const match=DEFAULT_STUDENTS_10.find(s=>s.gmail.toLowerCase()===trimmed);
+      if(!match){setError('Gmail not found in Std 10 records.');return;}
+      quickLogin10(match.studentId);
+    } else if(role==='std12'){
+      const match=DEFAULT_STUDENTS_12.find(s=>s.gmail.toLowerCase()===trimmed);
+      if(!match){setError('Gmail not found in Std 12 records.');return;}
+      quickLogin12(match.studentId);
+    } else {
+      if(passcode!=='admin123'){setError('Wrong passcode (admin123)');return;}
+      quickAdmin();
+    }
+  };
 
-      // Emily Davis (STU-1004)
-      { studentId: "STU-1004", subject: "Mathematics", examType: "Unit Test 1", marksObtained: 32, maxMarks: 50, date: "2026-06-15" },
-      { studentId: "STU-1004", subject: "Biology", examType: "Unit Test 1", marksObtained: 45, maxMarks: 50, date: "2026-06-18" },
+  return(
+    <div className="min-h-screen flex flex-col">
 
-      // Liam Wilson (STU-1005)
-      { studentId: "STU-1005", subject: "Mathematics", examType: "Mid-Term", marksObtained: 89, maxMarks: 100, date: "2026-07-10" },
-      { studentId: "STU-1005", subject: "Physics", examType: "Mid-Term", marksObtained: 91, maxMarks: 100, date: "2026-07-12" }
-    ];
-
-    const INITIAL_EVENTS_ANNOUNCEMENTS = [
-      {
-        id: "EA-101",
-        type: "Announcement",
-        title: "Mid-Term Assessment Progress Reports Released",
-        description: "The Official Mid-Term progress reports have been synchronized. Please review your subject marks and reach out to academic counselors if needed.",
-        date: "2026-07-30",
-        category: "Academic",
-        priority: "Urgent"
-      },
-      {
-        id: "EA-102",
-        type: "Event",
-        title: "Annual STEM & Robotics Exhibition 2026",
-        description: "Students from Grade 10 to 12 are invited to submit their science projects for the regional STEM showcase in the main auditorium.",
-        date: "2026-08-05",
-        category: "Academic",
-        priority: "General"
-      },
-      {
-        id: "EA-103",
-        type: "Event",
-        title: "Inter-School Basketball Tournament Championship",
-        description: "Cheer for the Tigers in the finals at the sports complex. Refreshments and student spirit badges will be distributed.",
-        date: "2026-08-12",
-        category: "Sports",
-        priority: "General"
-      },
-      {
-        id: "EA-104",
-        type: "Announcement",
-        title: "Library Special Study Hours for Finals Preparation",
-        description: "The digital resource lab and physical library will remain open until 8:00 PM every weekday starting next Monday.",
-        date: "2026-07-28",
-        category: "Academic",
-        priority: "General"
-      },
-      {
-        id: "EA-105",
-        type: "Event",
-        title: "Independence Day Campus Holiday",
-        description: "Campus will remain closed for students and faculty. Online portal services remain accessible 24/7.",
-        date: "2026-08-15",
-        category: "Holiday",
-        priority: "Urgent"
-      }
-    ];
-
-    // --- EXCEL PARSING & GENERATION UTILS ---
-    const normalizeKeys = (row) => {
-      const normalized = {};
-      for (const key in row) {
-        if (Object.prototype.hasOwnProperty.call(row, key)) {
-          const cleanKey = key.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-          normalized[cleanKey] = row[key];
-        }
-      }
-      return normalized;
-    };
-
-    const parseExcelFile = (file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-
-            const parsedStudents = [];
-            const parsedMarks = [];
-            const parsedEvents = [];
-
-            const findSheetName = (targetNames) => {
-              return workbook.SheetNames.find(name => 
-                targetNames.some(tn => name.toLowerCase().trim().includes(tn))
-              );
-            };
-
-            // 1. Students Sheet
-            const studentsSheetName = findSheetName(['student', 'students']);
-            if (studentsSheetName) {
-              const rawStudents = XLSX.utils.sheet_to_json(workbook.Sheets[studentsSheetName]);
-              rawStudents.forEach((row, idx) => {
-                const norm = normalizeKeys(row);
-                const studentId = norm.studentid || norm.id || `STU-${1001 + idx}`;
-                const name = norm.name || norm.studentname || "Unknown Student";
-                const grade = norm.grade || norm.class || "Grade 11";
-                let attendance = parseFloat(norm.attendance || norm.attendancepercent || 90);
-                if (attendance <= 1 && attendance > 0) attendance = attendance * 100;
-                const avatarUrl = norm.profileimageurl || norm.avatar || norm.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
-
-                parsedStudents.push({
-                  studentId: String(studentId).trim(),
-                  name: String(name).trim(),
-                  grade: String(grade).trim(),
-                  attendance: Math.min(100, Math.max(0, Math.round(attendance * 10) / 10)),
-                  avatarUrl: String(avatarUrl).trim()
-                });
-              });
-            }
-
-            // 2. Marks Sheet
-            const marksSheetName = findSheetName(['mark', 'marks', 'score', 'scores', 'result', 'results']);
-            if (marksSheetName) {
-              const rawMarks = XLSX.utils.sheet_to_json(workbook.Sheets[marksSheetName]);
-              rawMarks.forEach((row) => {
-                const norm = normalizeKeys(row);
-                const studentId = norm.studentid || norm.id || (parsedStudents[0] ? parsedStudents[0].studentId : "STU-1001");
-                const subject = norm.subject || norm.course || "General Subject";
-                const examType = norm.testexamtype || norm.examtype || norm.testtype || norm.exam || "Unit Test 1";
-                const marksObtained = parseFloat(norm.marksobtained || norm.marks || norm.score || 0);
-                const maxMarks = parseFloat(norm.maxmarks || norm.totalmarks || norm.outof || 100);
-                let date = norm.date || new Date().toISOString().split('T')[0];
-                if (date instanceof Date) date = date.toISOString().split('T')[0];
-
-                parsedMarks.push({
-                  studentId: String(studentId).trim(),
-                  subject: String(subject).trim(),
-                  examType: String(examType).trim(),
-                  marksObtained: Math.max(0, marksObtained),
-                  maxMarks: Math.max(1, maxMarks),
-                  date: String(date).trim()
-                });
-              });
-            }
-
-            // 3. Events Sheet
-            const eventsSheetName = findSheetName(['event', 'events', 'announcement', 'announcements', 'news']);
-            if (eventsSheetName) {
-              const rawEvents = XLSX.utils.sheet_to_json(workbook.Sheets[eventsSheetName]);
-              rawEvents.forEach((row, idx) => {
-                const norm = normalizeKeys(row);
-                const id = norm.id || `EA-${200 + idx}`;
-                const type = (norm.type || "Announcement").toLowerCase().includes("event") ? "Event" : "Announcement";
-                const title = norm.title || norm.heading || "Notice";
-                const description = norm.description || norm.details || norm.desc || "";
-                const category = norm.category || "Academic";
-                const priority = (norm.priority || "General").toLowerCase().includes("urgent") ? "Urgent" : "General";
-                let date = norm.date || new Date().toISOString().split('T')[0];
-                if (date instanceof Date) date = date.toISOString().split('T')[0];
-
-                parsedEvents.push({
-                  id: String(id).trim(),
-                  type,
-                  title: String(title).trim(),
-                  description: String(description).trim(),
-                  date: String(date).trim(),
-                  category: String(category).trim(),
-                  priority
-                });
-              });
-            }
-
-            resolve({
-              students: parsedStudents.length ? parsedStudents : INITIAL_STUDENTS,
-              marks: parsedMarks.length ? parsedMarks : INITIAL_MARKS,
-              events: parsedEvents.length ? parsedEvents : INITIAL_EVENTS_ANNOUNCEMENTS
-            });
-          } catch (err) {
-            reject(new Error("Error parsing Excel file format: " + err.message));
-          }
-        };
-        reader.onerror = (err) => reject(err);
-        reader.readAsArrayBuffer(file);
-      });
-    };
-
-    const downloadSampleExcel = (studentsData = INITIAL_STUDENTS, marksData = INITIAL_MARKS, eventsData = INITIAL_EVENTS_ANNOUNCEMENTS) => {
-      const wb = XLSX.utils.book_new();
-
-      const formattedStudents = studentsData.map(s => ({
-        "Student ID": s.studentId,
-        "Name": s.name,
-        "Grade": s.grade,
-        "Attendance (%)": s.attendance,
-        "Profile Image URL": s.avatarUrl
-      }));
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(formattedStudents), "Students");
-
-      const formattedMarks = marksData.map(m => ({
-        "Student ID": m.studentId,
-        "Subject": m.subject,
-        "Test/Exam Type": m.examType,
-        "Marks Obtained": m.marksObtained,
-        "Max Marks": m.maxMarks,
-        "Date": m.date
-      }));
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(formattedMarks), "Marks");
-
-      const formattedEvents = eventsData.map(e => ({
-        "ID": e.id,
-        "Type": e.type,
-        "Title": e.title,
-        "Description": e.description,
-        "Date": e.date,
-        "Category": e.category,
-        "Priority": e.priority
-      }));
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(formattedEvents), "Events & Announcements");
-
-      XLSX.writeFile(wb, "AcademiaPulse_Academic_Database.xlsx");
-    };
-
-    // Helper Grade Badges
-    const getGradeBadge = (pct) => {
-      if (pct >= 90) return { label: 'A+', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' };
-      if (pct >= 80) return { label: 'A', color: 'bg-teal-500/20 text-teal-400 border-teal-500/40' };
-      if (pct >= 70) return { label: 'B', color: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40' };
-      if (pct >= 60) return { label: 'C', color: 'bg-amber-500/20 text-amber-400 border-amber-500/40' };
-      return { label: 'F', color: 'bg-rose-500/20 text-rose-400 border-rose-500/40' };
-    };
-
-    // --- MAIN APP COMPONENT ---
-    function App() {
-      const [userRole, setUserRole] = useState('login'); // 'login' | 'student' | 'admin'
-      const [students, setStudents] = useState(INITIAL_STUDENTS);
-      const [marks, setMarks] = useState(INITIAL_MARKS);
-      const [events, setEvents] = useState(INITIAL_EVENTS_ANNOUNCEMENTS);
-      
-      const [currentStudent, setCurrentStudent] = useState(INITIAL_STUDENTS[0]);
-      const [selectedReportCardStudent, setSelectedReportCardStudent] = useState(null);
-
-      const [selectedTerm, setSelectedTerm] = useState('All');
-      const [searchMarksQuery, setSearchMarksQuery] = useState('');
-      const [filterCategory, setFilterCategory] = useState('All');
-      
-      const [directorySearch, setDirectorySearch] = useState('');
-      const [directoryGrade, setDirectoryGrade] = useState('All');
-
-      const [isDragging, setIsDragging] = useState(false);
-      const [uploadLoading, setUploadLoading] = useState(false);
-      const [uploadStatus, setUploadStatus] = useState(null);
-
-      // Broadcast form state
-      const [bType, setBType] = useState('Announcement');
-      const [bTitle, setBTitle] = useState('');
-      const [bDesc, setBDesc] = useState('');
-      const [bDate, setBDate] = useState(new Date().toISOString().split('T')[0]);
-      const [bCategory, setBCategory] = useState('Academic');
-      const [bPriority, setBPriority] = useState('General');
-      const [bSuccess, setBSuccess] = useState(false);
-
-      // Re-trigger Lucide icon renders on dynamic updates
-      useEffect(() => {
-        if (window.lucide) {
-          window.lucide.createIcons();
-        }
-      });
-
-      const handleExcelSync = async (file) => {
-        if (!file) return;
-        setUploadLoading(true);
-        setUploadStatus(null);
-        try {
-          const res = await parseExcelFile(file);
-          setStudents(res.students);
-          setMarks(res.marks);
-          setEvents(res.events);
-          if (res.students.length > 0) setCurrentStudent(res.students[0]);
-          setUploadStatus({ type: 'success', text: `Database synchronized! Loaded ${res.students.length} Students, ${res.marks.length} Marks, and ${res.events.length} Events/Notices.` });
-        } catch (err) {
-          setUploadStatus({ type: 'error', text: err.message });
-        } finally {
-          setUploadLoading(false);
-        }
-      };
-
-      const handleBroadcastSubmit = (e) => {
-        e.preventDefault();
-        if (!bTitle.trim() || !bDesc.trim()) return;
-        const newRecord = {
-          id: `EA-${Date.now().toString().slice(-4)}`,
-          type: bType,
-          title: bTitle.trim(),
-          description: bDesc.trim(),
-          date: bDate,
-          category: bCategory,
-          priority: bPriority
-        };
-        setEvents(prev => [newRecord, ...prev]);
-        setBTitle('');
-        setBDesc('');
-        setBSuccess(true);
-        setTimeout(() => setBSuccess(false), 3000);
-      };
-
-      // Compute student-specific metrics
-      const studentMarks = marks.filter(m => m.studentId === currentStudent?.studentId);
-      const studentAvgPct = studentMarks.length > 0
-        ? Math.round(studentMarks.reduce((acc, m) => acc + (m.marksObtained / m.maxMarks) * 100, 0) / studentMarks.length)
-        : 0;
-
-      // Subject Aggregates
-      const subjectAggregates = {};
-      studentMarks.forEach(m => {
-        if (!subjectAggregates[m.subject]) subjectAggregates[m.subject] = { obtained: 0, max: 0 };
-        subjectAggregates[m.subject].obtained += m.marksObtained;
-        subjectAggregates[m.subject].max += m.maxMarks;
-      });
-      const subjectProgressList = Object.entries(subjectAggregates).map(([sub, d]) => ({
-        subject: sub,
-        pct: Math.round((d.obtained / d.max) * 100)
-      }));
-
-      // Terms
-      const examTerms = ['All', ...new Set(studentMarks.map(m => m.examType))];
-      const filteredMarks = studentMarks.filter(m => {
-        const matchesTerm = selectedTerm === 'All' || m.examType.toLowerCase().includes(selectedTerm.toLowerCase());
-        const matchesSearch = m.subject.toLowerCase().includes(searchMarksQuery.toLowerCase());
-        return matchesTerm && matchesSearch;
-      });
-
-      // Announcements
-      const announcements = events.filter(e => e.type.toLowerCase().includes('announcement'));
-      const categories = ['All', ...new Set(announcements.map(a => a.category))];
-      const filteredAnnouncements = announcements.filter(a => filterCategory === 'All' || a.category === filterCategory);
-
-      // Events Countdown Helper
-      const upcomingEvents = events.filter(e => e.type.toLowerCase().includes('event'));
-      const getCountdownLabel = (evtDate) => {
-        const today = new Date(); today.setHours(0,0,0,0);
-        const target = new Date(evtDate); target.setHours(0,0,0,0);
-        const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
-        if (diff === 0) return { text: "Today!", style: "bg-rose-500/20 text-rose-300 border-rose-500/40" };
-        if (diff === 1) return { text: "Tomorrow", style: "bg-amber-500/20 text-amber-300 border-amber-500/40" };
-        if (diff > 1) return { text: `In ${diff} days`, style: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" };
-        return { text: "Past Event", style: "bg-slate-800 text-slate-400 border-slate-700" };
-      };
-
-      // Admin Directory
-      const directoryGrades = ['All', ...new Set(students.map(s => s.grade))];
-      const studentSummaries = students.map(s => {
-        const sm = marks.filter(m => m.studentId === s.studentId);
-        const avg = sm.length > 0 ? Math.round(sm.reduce((acc, m) => acc + (m.marksObtained / m.maxMarks) * 100, 0) / sm.length) : 0;
-        return { ...s, examCount: sm.length, avgScore: avg };
-      });
-      const filteredDirectory = studentSummaries.filter(s => {
-        const matchesSearch = s.name.toLowerCase().includes(directorySearch.toLowerCase()) || s.studentId.toLowerCase().includes(directorySearch.toLowerCase());
-        const matchesGrade = directoryGrade === 'All' || s.grade === directoryGrade;
-        return matchesSearch && matchesGrade;
-      });
-
-      // --- LOGIN VIEW ---
-      if (userRole === 'login') {
-        return (
-          <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none" />
-            <div className="w-full max-w-md relative z-10">
-              
-              <div className="text-center mb-8">
-                <div className="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 shadow-xl shadow-indigo-500/25 ring-1 ring-white/20 mb-4 animate-pulse-subtle">
-                  <i data-lucide="graduation-cap" className="w-10 h-10 text-white"></i>
-                </div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                  Academia<span className="gradient-text">Pulse</span>
-                </h1>
-                <p className="text-sm text-slate-400 mt-2 font-medium">
-                  Daily Student Academic & Excel Database Portal
-                </p>
-              </div>
-
-              <div className="glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800/80">
-                <div className="mb-6">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                    Select Login Access Role
-                  </label>
-                  <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setUserRole('student_select')}
-                      className={`flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs transition-all ${
-                        userRole !== 'admin_select' ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      <i data-lucide="user-check" className="w-4 h-4"></i>
-                      <span>Student</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setUserRole('admin_select')}
-                      className={`flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-bold text-xs transition-all ${
-                        userRole === 'admin_select' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      <i data-lucide="shield-check" className="w-4 h-4"></i>
-                      <span>Admin</span>
-                    </button>
-                  </div>
-                </div>
-
-                {userRole !== 'admin_select' ? (
-                  <div className="space-y-4">
-                    <label className="block text-xs font-bold text-slate-300">Select Student Profile to View</label>
-                    <div className="space-y-2">
-                      {students.slice(0, 4).map(stu => (
-                        <div
-                          key={stu.studentId}
-                          onClick={() => setCurrentStudent(stu)}
-                          className={`flex items-center justify-between p-3 rounded-2xl border transition-all cursor-pointer ${
-                            currentStudent?.studentId === stu.studentId
-                              ? 'bg-indigo-600/20 border-indigo-500/80 shadow-md'
-                              : 'bg-slate-900/60 border-slate-800 hover:bg-slate-800/50'
-                          }`}
-                        >
-                          <div className="flex items-center space-x-3">
-                            <img src={stu.avatarUrl} alt={stu.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-indigo-500/30" />
-                            <div>
-                              <p className="text-sm font-bold text-white">{stu.name}</p>
-                              <p className="text-xs text-slate-400">{stu.grade} • {stu.studentId}</p>
-                            </div>
-                          </div>
-                          <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                            {stu.attendance}% Att.
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <button
-                      onClick={() => setUserRole('student')}
-                      className="w-full py-3.5 px-6 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-xl shadow-indigo-600/30 flex items-center justify-center space-x-2 hover:scale-[1.01] transition-transform"
-                    >
-                      <span>Enter Student Dashboard</span>
-                      <i data-lucide="arrow-right" className="w-4 h-4"></i>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-2">Admin Security Passcode</label>
-                      <input
-                        type="password"
-                        defaultValue="admin123"
-                        placeholder="Enter passcode (default: admin123)"
-                        className="w-full py-3 px-4 bg-slate-900 border border-slate-800 rounded-2xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <p className="text-[11px] text-slate-400 mt-1">Demo Passcode: <span className="text-purple-400 font-mono font-bold">admin123</span></p>
-                    </div>
-
-                    <button
-                      onClick={() => setUserRole('admin')}
-                      className="w-full py-3.5 px-6 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 shadow-xl shadow-purple-600/30 flex items-center justify-center space-x-2 hover:scale-[1.01] transition-transform"
-                    >
-                      <span>Enter Admin Portal</span>
-                      <i data-lucide="arrow-right" className="w-4 h-4"></i>
-                    </button>
-                  </div>
-                )}
-
-                <div className="mt-6 pt-5 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                  <span className="flex items-center space-x-1">
-                    <i data-lucide="sparkles" className="w-3.5 h-3.5 text-amber-400"></i>
-                    <span>Pre-loaded demo data</span>
-                  </span>
-                  <button
-                    onClick={() => downloadSampleExcel(students, marks, events)}
-                    className="flex items-center space-x-1 text-indigo-400 hover:text-indigo-300 font-semibold"
-                  >
-                    <i data-lucide="file-spreadsheet" className="w-3.5 h-3.5 text-emerald-400"></i>
-                    <span>Get Sample .xlsx</span>
-                  </button>
-                </div>
-
-              </div>
-            </div>
+      {/* School Header Banner */}
+      <div className="school-banner py-5 px-4 text-center relative overflow-hidden bg-slate-900/90 border-b border-slate-800">
+        <div className="relative max-w-4xl mx-auto flex flex-col items-center justify-center">
+          <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-2xl border border-white/20 inline-block max-w-full">
+            <img src="school_logo.png" alt="S. D. Sion Matriculation Higher Secondary School" className="h-16 sm:h-24 max-w-full object-contain mx-auto"
+              onError={e=>{e.target.src='school_logo.jpg';}}/>
           </div>
-        );
-      }
+          <p className="text-xs tracking-widest text-indigo-300/80 uppercase font-semibold mt-2.5">Academic Performance Portal · 2025–2026</p>
+        </div>
+      </div>
 
-      // --- MAIN APP VIEW (STUDENT / ADMIN) ---
-      return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-          
-          {/* HEADER NAVBAR */}
-          <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between h-16 sm:h-20">
-                
-                <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setUserRole('login')}>
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
-                    <i data-lucide="graduation-cap" className="w-6 h-6 text-white"></i>
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xl sm:text-2xl font-extrabold text-white">
-                        Academia<span className="gradient-text">Pulse</span>
-                      </span>
-                      <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-bold uppercase text-indigo-300 bg-indigo-500/20 rounded-full border border-indigo-500/30">
-                        Excel Sync
-                      </span>
-                    </div>
-                  </div>
+      {/* Main Login Box */}
+      <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="w-full max-w-lg relative z-10">
+
+          {/* Role Navigation */}
+          <div className="grid grid-cols-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-1.5 mb-5 gap-1.5">
+            <button onClick={()=>{setRole('std10');setError('');}}
+              className={`py-3 rounded-xl text-xs font-bold transition-all ${role==='std10'?'bg-blue-600 text-white shadow-lg shadow-blue-600/30':'text-slate-400 hover:text-white'}`}>
+              📘 Std 10 Portal
+            </button>
+            <button onClick={()=>{setRole('std12');setError('');}}
+              className={`py-3 rounded-xl text-xs font-bold transition-all ${role==='std12'?'bg-purple-600 text-white shadow-lg shadow-purple-600/30':'text-slate-400 hover:text-white'}`}>
+              📕 Std 12 Portal
+            </button>
+            <button onClick={()=>{setRole('admin');setError('');}}
+              className={`py-3 rounded-xl text-xs font-bold transition-all ${role==='admin'?'bg-amber-600 text-white shadow-lg shadow-amber-600/30':'text-slate-400 hover:text-white'}`}>
+              🛡️ Admin Portal
+            </button>
+          </div>
+
+          <div className="glass rounded-3xl p-6 sm:p-8 shadow-2xl">
+            {role === 'std10' && (
+              <>
+                <div className="mb-5 text-center">
+                  <h2 className="text-2xl font-extrabold text-white">Standard 10 Student Login</h2>
+                  <p className="text-xs text-blue-300 mt-1 font-mono">5 Subjects: 1. Tamil · 2. English · 3. Maths · 4. Science · 5. Social</p>
                 </div>
 
-                <div className="flex items-center space-x-3 sm:space-x-4">
-                  <button
-                    onClick={() => downloadSampleExcel(students, marks, events)}
-                    className="hidden lg:flex items-center space-x-2 px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/60 rounded-xl border border-slate-700/60"
-                  >
-                    <i data-lucide="file-spreadsheet" className="w-4 h-4 text-emerald-400"></i>
-                    <span>Sample .xlsx</span>
-                  </button>
-
-                  {userRole === 'student' && students.length > 0 && (
-                    <div className="relative group">
-                      <div className="flex items-center space-x-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 cursor-pointer">
-                        <img src={currentStudent?.avatarUrl} alt={currentStudent?.name} className="w-7 h-7 rounded-full object-cover ring-2 ring-indigo-500/40" />
-                        <div className="text-left hidden md:block">
-                          <p className="text-xs font-bold text-slate-200">{currentStudent?.name}</p>
-                          <p className="text-[10px] text-slate-400">{currentStudent?.studentId}</p>
+                <div className="space-y-2 mb-6">
+                  {DEFAULT_STUDENTS_10.map(s=>(
+                    <button key={s.id} onClick={()=>quickLogin10(s.studentId)}
+                      className="w-full flex items-center justify-between p-3.5 rounded-2xl border bg-blue-900/30 border-blue-500/30 hover:border-blue-400 transition-all hover:scale-[1.01]">
+                      <div className="flex items-center gap-3">
+                        <img src={s.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover"/>
+                        <div className="text-left">
+                          <p className="font-bold text-white text-sm">{s.name}</p>
+                          <p className="text-[10px] text-slate-400 font-mono">{s.gmail}</p>
                         </div>
-                        <i data-lucide="chevron-down" className="w-4 h-4 text-slate-400"></i>
                       </div>
-
-                      <div className="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl py-2 hidden group-hover:block z-50">
-                        <div className="px-3 py-1 border-b border-slate-800 text-[10px] font-bold text-slate-400 uppercase">
-                          Switch Student Profile
-                        </div>
-                        {students.map(stu => (
-                          <button
-                            key={stu.studentId}
-                            onClick={() => setCurrentStudent(stu)}
-                            className={`w-full text-left px-3 py-2 text-xs flex items-center space-x-3 hover:bg-indigo-600/20 ${stu.studentId === currentStudent?.studentId ? 'bg-indigo-600/30 text-indigo-300 font-semibold' : 'text-slate-300'}`}
-                          >
-                            <img src={stu.avatarUrl} alt={stu.name} className="w-6 h-6 rounded-full object-cover" />
-                            <div>
-                              <p className="font-medium text-slate-200">{stu.name}</p>
-                              <p className="text-[10px] text-slate-400">{stu.grade}</p>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center bg-slate-900 rounded-xl p-1 border border-slate-800">
-                    <button
-                      onClick={() => setUserRole('student')}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${userRole === 'student' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}
-                    >
-                      Student
+                      <span className="px-3 py-1 text-xs font-bold rounded-xl text-white bg-blue-600">Open 10th Portal →</span>
                     </button>
-                    <button
-                      onClick={() => setUserRole('admin')}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${userRole === 'admin' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'}`}
-                    >
-                      Admin
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => setUserRole('login')}
-                    className="p-2 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-rose-500/10"
-                    title="Logout"
-                  >
-                    <i data-lucide="log-out" className="w-5 h-5"></i>
-                  </button>
-
+                  ))}
                 </div>
-
-              </div>
-            </div>
-          </header>
-
-          {/* MAIN DASHBOARD CONTENT */}
-          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            
-            {/* --- STUDENT ROLE VIEW --- */}
-            {userRole === 'student' && (
-              <div className="space-y-8">
-                
-                {/* Welcome Banner */}
-                <div className="relative overflow-hidden rounded-3xl glass-panel border border-slate-800 p-6 sm:p-8 shadow-2xl">
-                  <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                    <div className="flex items-center space-x-4 sm:space-x-6">
-                      <img src={currentStudent?.avatarUrl} alt={currentStudent?.name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-4 ring-indigo-500/30" />
-                      <div>
-                        <div className="flex items-center space-x-3 flex-wrap">
-                          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-                            Welcome back, {currentStudent?.name}! 👋
-                          </h1>
-                          <span className="px-3 py-1 text-xs font-bold text-indigo-300 bg-indigo-500/20 rounded-full border border-indigo-500/30">
-                            {currentStudent?.grade}
-                          </span>
-                        </div>
-                        <p className="text-sm text-slate-400 mt-1">
-                          Student ID: <strong className="text-slate-200">{currentStudent?.studentId}</strong> • Academic Term 2026
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                          <i data-lucide="award" className="w-5 h-5"></i>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase text-slate-400">Cumulative GPA</p>
-                          <p className="text-lg font-extrabold text-white">{studentAvgPct}%</p>
-                        </div>
-                      </div>
-
-                      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                          <i data-lucide="check-circle-2" className="w-5 h-5"></i>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase text-slate-400">Attendance</p>
-                          <p className="text-lg font-extrabold text-emerald-400">{currentStudent?.attendance}%</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Metrics Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="glass-panel p-5 rounded-2xl border border-slate-800">
-                    <span className="text-xs font-bold uppercase text-slate-400 block mb-2">Overall Average</span>
-                    <span className="text-3xl font-extrabold text-white">{studentAvgPct}%</span>
-                    <p className="text-[11px] text-slate-400 mt-1">Across all assessments</p>
-                  </div>
-
-                  <div className="glass-panel p-5 rounded-2xl border border-slate-800">
-                    <span className="text-xs font-bold uppercase text-slate-400 block mb-2">Assessments Logged</span>
-                    <span className="text-3xl font-extrabold text-purple-400">{studentMarks.length}</span>
-                    <p className="text-[11px] text-slate-400 mt-1">Exams & unit tests</p>
-                  </div>
-
-                  <div className="glass-panel p-5 rounded-2xl border border-slate-800">
-                    <span className="text-xs font-bold uppercase text-slate-400 block mb-2">Enrolled Subjects</span>
-                    <span className="text-3xl font-extrabold text-amber-400">{subjectProgressList.length}</span>
-                    <p className="text-[11px] text-slate-400 mt-1">Active courses</p>
-                  </div>
-
-                  <div className="glass-panel p-5 rounded-2xl border border-slate-800">
-                    <span className="text-xs font-bold uppercase text-slate-400 block mb-2">Attendance Status</span>
-                    <span className="text-3xl font-extrabold text-emerald-400">{currentStudent?.attendance}%</span>
-                    <p className="text-[11px] text-slate-400 mt-1">Verified registry record</p>
-                  </div>
-                </div>
-
-                {/* Subject Overview & Marks Table */}
-                <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800">
-                  <h2 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
-                    <i data-lucide="award" className="w-5 h-5 text-indigo-400"></i>
-                    <span>Subject Proficiency Breakdown</span>
-                  </h2>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    {subjectProgressList.map(item => {
-                      const badge = getGradeBadge(item.pct);
-                      return (
-                        <div key={item.subject} className="space-y-2">
-                          <div className="flex justify-between text-xs">
-                            <span className="font-bold text-slate-200">{item.subject}</span>
-                            <div className="flex items-center space-x-2">
-                              <span className="font-bold text-white">{item.pct}%</span>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${badge.color}`}>{badge.label}</span>
-                            </div>
-                          </div>
-                          <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                            <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style={{ width: `${item.pct}%` }}></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Filter & Search */}
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
-                    <input
-                      type="text"
-                      placeholder="Search subject..."
-                      value={searchMarksQuery}
-                      onChange={(e) => setSearchMarksQuery(e.target.value)}
-                      className="w-full sm:w-60 py-1.5 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"
-                    />
-
-                    <div className="flex space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                      {examTerms.map(term => (
-                        <button
-                          key={term}
-                          onClick={() => setSelectedTerm(term)}
-                          className={`px-3 py-1 text-xs font-semibold rounded-lg ${selectedTerm === term ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}
-                        >
-                          {term}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Marks Table */}
-                  <div className="overflow-x-auto rounded-2xl border border-slate-800">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-900 border-b border-slate-800 text-[11px] font-bold uppercase text-slate-400">
-                        <tr>
-                          <th className="py-3 px-4">Subject</th>
-                          <th className="py-3 px-4">Exam Type</th>
-                          <th className="py-3 px-4 text-center">Marks Obtained</th>
-                          <th className="py-3 px-4 text-center">Max Marks</th>
-                          <th className="py-3 px-4 text-center">Percentage</th>
-                          <th className="py-3 px-4 text-center">Grade</th>
-                          <th className="py-3 px-4 text-right">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-800">
-                        {filteredMarks.map((row, idx) => {
-                          const pct = Math.round((row.marksObtained / row.maxMarks) * 100);
-                          const grade = getGradeBadge(pct);
-                          return (
-                            <tr key={idx} className="hover:bg-slate-900/40">
-                              <td className="py-3.5 px-4 font-bold text-white">{row.subject}</td>
-                              <td className="py-3.5 px-4 text-slate-300">{row.examType}</td>
-                              <td className="py-3.5 px-4 text-center font-extrabold text-white">{row.marksObtained}</td>
-                              <td className="py-3.5 px-4 text-center text-slate-400">{row.maxMarks}</td>
-                              <td className="py-3.5 px-4 text-center font-bold">{pct}%</td>
-                              <td className="py-3.5 px-4 text-center">
-                                <span className={`px-2.5 py-0.5 rounded font-extrabold border ${grade.color}`}>{grade.label}</span>
-                              </td>
-                              <td className="py-3.5 px-4 text-right text-slate-400 font-mono text-[11px]">{row.date}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-
-                </div>
-
-                {/* Announcements Feed & Events Timeline */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  
-                  {/* Feed */}
-                  <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800">
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
-                      <i data-lucide="bell" className="w-5 h-5 text-amber-400"></i>
-                      <span>Daily Announcements Feed</span>
-                    </h2>
-
-                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-                      {filteredAnnouncements.map(item => (
-                        <div key={item.id} className={`p-4 rounded-2xl border ${item.priority === 'Urgent' ? 'bg-rose-500/10 border-rose-500/30' : 'bg-slate-900/70 border-slate-800'}`}>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full ${item.priority === 'Urgent' ? 'bg-rose-500/20 text-rose-300' : 'bg-indigo-500/20 text-indigo-300'}`}>
-                              {item.priority}
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-mono">{item.date}</span>
-                          </div>
-                          <h3 className="text-sm font-bold text-white">{item.title}</h3>
-                          <p className="text-xs text-slate-300 mt-1">{item.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Events */}
-                  <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800">
-                    <h2 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
-                      <i data-lucide="calendar" className="w-5 h-5 text-emerald-400"></i>
-                      <span>Upcoming Events & Milestones</span>
-                    </h2>
-
-                    <div className="space-y-4">
-                      {upcomingEvents.map(evt => {
-                        const countdown = getCountdownLabel(evt.date);
-                        return (
-                          <div key={evt.id} className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800">
-                            <div className="flex justify-between items-center mb-1">
-                              <span className="text-xs font-bold text-slate-300">{evt.category}</span>
-                              <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${countdown.style}`}>
-                                {countdown.text}
-                              </span>
-                            </div>
-                            <h3 className="text-sm font-bold text-white">{evt.title}</h3>
-                            <p className="text-xs text-slate-400 mt-1">{evt.description}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
+              </>
             )}
 
-            {/* --- ADMIN ROLE VIEW --- */}
-            {userRole === 'admin' && (
-              <div className="space-y-8">
-                
-                {/* Excel Sync Hub */}
-                <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <div>
-                      <h2 className="text-xl font-bold text-white flex items-center space-x-2">
-                        <i data-lucide="database" className="w-5 h-5 text-indigo-400"></i>
-                        <span>Excel Database Sync Hub</span>
-                      </h2>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Upload `.xlsx` containing <strong>Students</strong>, <strong>Marks</strong>, and <strong>Events & Announcements</strong> sheets.
-                      </p>
-                    </div>
+            {role === 'std12' && (
+              <>
+                <div className="mb-5 text-center">
+                  <h2 className="text-2xl font-extrabold text-white">Standard 12 Student Login</h2>
+                  <p className="text-xs text-purple-300 mt-1">Select your Group profile (6 Subjects per Group):</p>
+                </div>
 
-                    <button
-                      onClick={() => downloadSampleExcel(students, marks, events)}
-                      className="flex items-center space-x-1.5 px-3 py-2 text-xs font-bold text-emerald-300 bg-emerald-500/10 rounded-xl border border-emerald-500/30"
-                    >
-                      <i data-lucide="file-spreadsheet" className="w-4 h-4 text-emerald-400"></i>
-                      <span>Download .xlsx Template</span>
+                <div className="space-y-2 mb-6">
+                  {DEFAULT_STUDENTS_12.map(s=>(
+                    <button key={s.studentId} onClick={()=>quickLogin12(s.studentId)}
+                      className="w-full flex items-center justify-between p-3.5 rounded-2xl border bg-purple-900/30 border-purple-500/30 hover:border-purple-400 transition-all hover:scale-[1.01]">
+                      <div className="flex items-center gap-3">
+                        <img src={s.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover"/>
+                        <div className="text-left">
+                          <p className="font-bold text-white text-sm">{s.name}</p>
+                          <p className="text-[10px] text-purple-300 font-bold">Group: {s.group}</p>
+                          <p className="text-[10px] text-slate-400 font-mono">{s.gmail}</p>
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 text-xs font-bold rounded-xl text-white bg-purple-600">Open 12th Portal →</span>
                     </button>
-                  </div>
-
-                  <div
-                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files[0]) handleExcelSync(e.dataTransfer.files[0]); }}
-                    className={`relative border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer ${isDragging ? 'border-indigo-500 bg-indigo-600/10' : 'border-slate-800 bg-slate-900/50 hover:border-slate-700'}`}
-                  >
-                    <input type="file" accept=".xlsx, .xls" onChange={(e) => e.target.files[0] && handleExcelSync(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                    <div className="flex flex-col items-center justify-center space-y-2 pointer-events-none">
-                      <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                        <i data-lucide="upload-cloud" className="w-6 h-6"></i>
-                      </div>
-                      <p className="text-sm font-bold text-white">Drag & Drop Excel File Here, or Click to Browse</p>
-                      <p className="text-xs text-slate-400">Supports .xlsx & .xls format • Real-time workbook parser</p>
-                    </div>
-                  </div>
-
-                  {uploadStatus && (
-                    <div className={`mt-4 p-3 rounded-xl border text-xs flex items-center space-x-2 ${uploadStatus.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border-rose-500/30 text-rose-300'}`}>
-                      <i data-lucide="check-circle-2" className="w-4 h-4"></i>
-                      <span>{uploadStatus.text}</span>
-                    </div>
-                  )}
+                  ))}
                 </div>
 
-                {/* Directory */}
-                <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800">
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-                    <div>
-                      <h2 className="text-xl font-bold text-white flex items-center space-x-2">
-                        <i data-lucide="users" className="w-5 h-5 text-indigo-400"></i>
-                        <span>Student Directory & Report Cards</span>
-                      </h2>
-                      <p className="text-xs text-slate-400">Search and inspect individual student transcripts</p>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      <input
-                        type="text"
-                        placeholder="Search student..."
-                        value={directorySearch}
-                        onChange={(e) => setDirectorySearch(e.target.value)}
-                        className="py-1.5 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"
-                      />
-                      <select
-                        value={directoryGrade}
-                        onChange={(e) => setDirectoryGrade(e.target.value)}
-                        className="py-1.5 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"
-                      >
-                        {directoryGrades.map(g => <option key={g} value={g}>{g}</option>)}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="overflow-x-auto rounded-2xl border border-slate-800">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-900 border-b border-slate-800 text-[11px] font-bold uppercase text-slate-400">
-                        <tr>
-                          <th className="py-3 px-4">Student</th>
-                          <th className="py-3 px-4">Grade</th>
-                          <th className="py-3 px-4 text-center">Exams Logged</th>
-                          <th className="py-3 px-4 text-center">Avg %</th>
-                          <th className="py-3 px-4 text-center">Attendance</th>
-                          <th className="py-3 px-4 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-800">
-                        {filteredDirectory.map(stu => (
-                          <tr key={stu.studentId} className="hover:bg-slate-900/40">
-                            <td className="py-3 px-4 font-bold text-white flex items-center space-x-3">
-                              <img src={stu.avatarUrl} alt={stu.name} className="w-8 h-8 rounded-full object-cover" />
-                              <div>
-                                <p className="font-bold text-white">{stu.name}</p>
-                                <p className="text-[10px] text-slate-400">{stu.studentId}</p>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4 text-slate-300">{stu.grade}</td>
-                            <td className="py-3 px-4 text-center font-bold">{stu.examCount}</td>
-                            <td className="py-3 px-4 text-center font-extrabold text-indigo-400">{stu.avgScore}%</td>
-                            <td className="py-3 px-4 text-center font-bold text-emerald-400">{stu.attendance}%</td>
-                            <td className="py-3 px-4 text-right">
-                              <button
-                                onClick={() => setSelectedReportCardStudent(stu)}
-                                className="px-3 py-1.5 text-xs font-bold text-indigo-300 bg-indigo-500/20 hover:bg-indigo-500/30 rounded-xl border border-indigo-500/30"
-                              >
-                                View Report Card
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                  <p className="font-bold text-purple-300 uppercase text-[10px]">Standard 12 Group Subject Order:</p>
+                  <p><strong className="text-white">Bio-Maths:</strong> 1. Tamil · 2. English · 3. Maths · 4. Physics · 5. Chemistry · 6. Biology</p>
+                  <p><strong className="text-white">CS Group:</strong> 1. Tamil · 2. English · 3. Maths · 4. Physics · 5. Chemistry · 6. Computer Science</p>
+                  <p><strong className="text-white">Commerce:</strong> 1. Tamil · 2. English · 3. Commerce · 4. Accountancy · 5. Economics · 6. Computer Apps</p>
                 </div>
-
-                {/* Broadcast Form */}
-                <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800">
-                  <h2 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
-                    <i data-lucide="send" className="w-5 h-5 text-pink-400"></i>
-                    <span>Quick Broadcast Center</span>
-                  </h2>
-
-                  <form onSubmit={handleBroadcastSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">Type</label>
-                        <select value={bType} onChange={(e) => setBType(e.target.value)} className="w-full py-2 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white">
-                          <option value="Announcement">Daily Announcement</option>
-                          <option value="Event">Upcoming Event</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">Category</label>
-                        <select value={bCategory} onChange={(e) => setBCategory(e.target.value)} className="w-full py-2 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white">
-                          <option value="Academic">Academic</option>
-                          <option value="Sports">Sports</option>
-                          <option value="Holiday">Holiday</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">Priority</label>
-                        <select value={bPriority} onChange={(e) => setBPriority(e.target.value)} className="w-full py-2 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white">
-                          <option value="General">General Notice</option>
-                          <option value="Urgent">Urgent Priority</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="sm:col-span-2">
-                        <label className="block text-xs font-bold text-slate-300 mb-1">Title</label>
-                        <input type="text" required value={bTitle} onChange={(e) => setBTitle(e.target.value)} placeholder="Notice title..." className="w-full py-2 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">Date</label>
-                        <input type="date" required value={bDate} onChange={(e) => setBDate(e.target.value)} className="w-full py-2 px-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white" />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">Description</label>
-                      <textarea rows="3" required value={bDesc} onChange={(e) => setBDesc(e.target.value)} placeholder="Provide notice details..." className="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"></textarea>
-                    </div>
-
-                    {bSuccess && (
-                      <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300">
-                        Broadcast published! Real-time feeds updated across all student accounts.
-                      </div>
-                    )}
-
-                    <button type="submit" className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs rounded-xl shadow-lg">
-                      Publish Notice
-                    </button>
-                  </form>
-                </div>
-
-              </div>
+              </>
             )}
 
-          </main>
-
-          {/* REPORT CARD MODAL */}
-          {selectedReportCardStudent && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-              <div className="w-full max-w-2xl glass-panel rounded-3xl border border-slate-800 p-6 space-y-6">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-                  <h2 className="text-xl font-bold text-white">Academic Report Card</h2>
-                  <button onClick={() => setSelectedReportCardStudent(null)} className="text-slate-400 hover:text-white">✕</button>
+            {role === 'admin' && (
+              <>
+                <div className="mb-6 text-center">
+                  <div className="text-5xl mb-2">🛡️</div>
+                  <h2 className="text-2xl font-extrabold text-white">Admin Control Portal</h2>
+                  <p className="text-xs text-slate-400 mt-1">Manage Class 10 &amp; Class 12 student performance</p>
                 </div>
+                <button onClick={quickAdmin} className="w-full py-4 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-extrabold text-sm rounded-2xl shadow-xl hover:scale-[1.01] transition-all">
+                  ⚡ 1-Click Launch Admin Portal →
+                </button>
+              </>
+            )}
 
-                <div className="flex items-center space-x-4 bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                  <img src={selectedReportCardStudent.avatarUrl} alt={selectedReportCardStudent.name} className="w-14 h-14 rounded-2xl object-cover" />
-                  <div>
-                    <h3 className="text-lg font-bold text-white">{selectedReportCardStudent.name}</h3>
-                    <p className="text-xs text-slate-400">{selectedReportCardStudent.grade} • {selectedReportCardStudent.studentId}</p>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto rounded-xl border border-slate-800">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-900 text-slate-400 font-bold uppercase">
-                      <tr>
-                        <th className="py-2.5 px-3">Subject</th>
-                        <th className="py-2.5 px-3">Exam</th>
-                        <th className="py-2.5 px-3 text-center">Score</th>
-                        <th className="py-2.5 px-3 text-center">Grade</th>
-                        <th className="py-2.5 px-3 text-right">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                      {marks.filter(m => m.studentId === selectedReportCardStudent.studentId).map((m, i) => {
-                        const pct = Math.round((m.marksObtained / m.maxMarks) * 100);
-                        const b = getGradeBadge(pct);
-                        return (
-                          <tr key={i}>
-                            <td className="py-2.5 px-3 font-bold text-white">{m.subject}</td>
-                            <td className="py-2.5 px-3 text-slate-300">{m.examType}</td>
-                            <td className="py-2.5 px-3 text-center font-bold">{m.marksObtained}/{m.maxMarks}</td>
-                            <td className="py-2.5 px-3 text-center"><span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${b.color}`}>{b.label} ({pct}%)</span></td>
-                            <td className="py-2.5 px-3 text-right text-slate-400 font-mono text-[10px]">{m.date}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="text-right">
-                  <button onClick={() => window.print()} className="px-4 py-2 bg-indigo-600 text-white font-bold text-xs rounded-xl mr-2">Print Report</button>
-                  <button onClick={() => setSelectedReportCardStudent(null)} className="px-4 py-2 bg-slate-800 text-slate-300 font-bold text-xs rounded-xl">Close</button>
-                </div>
-              </div>
-            </div>
-          )}
+            {role !== 'admin' && (
+              <form onSubmit={submit} className="mt-4 space-y-3">
+                <input type="email" value={gmail} onChange={e=>setGmail(e.target.value)}
+                  placeholder="Or enter registered gmail..."
+                  className="gmail-input w-full px-4 py-3 bg-slate-900/80 rounded-xl text-sm text-white placeholder-slate-500"/>
+                {error&&<div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300">{error}</div>}
+                <button type="submit" className={`w-full py-3 rounded-xl font-bold text-sm text-white ${role==='std10'?'bg-blue-600':'bg-purple-600'}`}>
+                  Sign In →
+                </button>
+              </form>
+            )}
+          </div>
 
         </div>
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
-
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
 </body>
 </html>
