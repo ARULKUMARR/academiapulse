@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Standard 10 Student Portal | S. D. Sion Matriculation</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📘</text></svg>"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *{font-family:'Plus Jakarta Sans',sans-serif}
+    body{
+      background:#070b19;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(37,99,235,0.25) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(124,58,237,0.18) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(16,185,129,0.15) 0px, transparent 50%);
+      background-attachment:fixed;
+    }
+    .glass{background:rgba(15,23,42,.85);backdrop-filter:blur(24px);border:1px solid rgba(59,130,246,.2)}
+    .school-banner{background:linear-gradient(135deg,#0a1628 0%,#0f2044 40%,#0a1628 100%);border-bottom:3px solid #2563eb}
+    .gmail-input{transition:all .2s;border:2px solid rgba(59,130,246,.25)}
+    .gmail-input:focus{border-color:#3b82f6;box-shadow:0 0 0 4px rgba(59,130,246,.2);outline:none}
+  </style>
+</head>
+<body class="min-h-screen text-white flex flex-col">
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const STD_10_STUDENTS = [
+  { studentId:"STU-1001", name:"Alex Johnson",    standard:"10", section:"A", gmail:"alex.johnson@gmail.com",     rollNo:"10-A-01", attendance:94.5, avatarUrl:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80" },
+  { studentId:"STU-1002", name:"Sophia Chen",     standard:"10", section:"B", gmail:"sophia.chen@gmail.com",      rollNo:"10-B-02", attendance:98.0, avatarUrl:"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80" },
+  { studentId:"STU-1006", name:"Priya Sharma",    standard:"10", section:"A", gmail:"priya.sharma@gmail.com",     rollNo:"10-A-06", attendance:91.0, avatarUrl:"https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&q=80" },
+  { studentId:"STU-1007", name:"Rohan Mehta",     standard:"10", section:"C", gmail:"rohan.mehta@gmail.com",      rollNo:"10-C-07", attendance:82.5, avatarUrl:"https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80" },
+];
+
+function seedData(){
+  if(!localStorage.getItem('ap_students_v10')){
+    localStorage.setItem('ap_students_v10', JSON.stringify(STD_10_STUDENTS));
+  }
+}
+
+function App(){
+  const [gmail, setGmail]=useState('');
+  const [error, setError]=useState('');
+  const [loading, setLoading]=useState(false);
+
+  useEffect(()=>{ seedData(); },[]);
+
+  const handleLogin=e=>{
+    e.preventDefault();
+    setError('');
+    const trimmed=gmail.trim().toLowerCase();
+    
+    if(!trimmed){
+      setError('Please enter your registered Gmail address.');
+      return;
+    }
+    
+    const students = JSON.parse(localStorage.getItem('ap_students_v10') || JSON.stringify(STD_10_STUDENTS));
+    const match = students.find(s => s.gmail.toLowerCase() === trimmed);
+    
+    if(!match){
+      setError(`Access Denied: Gmail "${trimmed}" is not registered in the Class 10 student database. Please check your spelling or contact your class teacher.`);
+      return;
+    }
+
+    setLoading(true);
+    setTimeout(()=>{
+      localStorage.setItem('ap_auth', 'student');
+      localStorage.setItem('ap_current_student', match.studentId);
+      localStorage.setItem('ap_current_gmail', match.gmail);
+      window.location.href = 'student10.html';
+    }, 400);
+  };
+
+  return(
+    <div className="min-h-screen flex flex-col">
+      {/* Banner */}
+      <div className="school-banner py-5 px-4 text-center relative overflow-hidden bg-slate-900/90">
+        <div className="relative max-w-4xl mx-auto flex flex-col items-center justify-center">
+          <div className="bg-white rounded-2xl p-3 shadow-2xl border border-white/20 inline-block max-w-full">
+            <img src="school_logo.png" alt="S. D. Sion Matriculation" className="h-16 max-w-full object-contain mx-auto" onError={e=>{e.target.src='school_logo.jpg';}}/>
+          </div>
+          <p className="text-xs tracking-widest text-blue-300 uppercase font-bold mt-2.5">Standard 10 Student Academic Portal</p>
+        </div>
+      </div>
+
+      {/* Login Box */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+
+          <div className="glass rounded-3xl p-6 sm:p-8 shadow-2xl">
+            <div className="mb-6 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/40 mx-auto flex items-center justify-center text-3xl mb-3">
+                📘
+              </div>
+              <h1 className="text-2xl font-extrabold text-white">Standard 10 Student Login</h1>
+              <p className="text-xs text-slate-400 mt-1">Enter your registered Gmail address to view your marks</p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-[11px] font-bold text-blue-400 uppercase tracking-wider mb-2">
+                  Registered Gmail Address
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">✉️</span>
+                  <input 
+                    type="email" 
+                    value={gmail} 
+                    onChange={e=>setGmail(e.target.value)}
+                    required
+                    autoFocus
+                    placeholder="e.g. student@gmail.com"
+                    className="gmail-input w-full pl-10 pr-4 py-3.5 bg-slate-900/80 rounded-xl text-sm text-white placeholder-slate-500"
+                  />
+                </div>
+              </div>
+
+              {error&&<div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 leading-relaxed font-medium">{error}</div>}
+
+              <button type="submit" disabled={loading}
+                className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 hover:scale-[1.01] transition-all">
+                {loading ? <span className="animate-spin text-base">⚙️</span> : 'Sign In to View My Marks →'}
+              </button>
+            </form>
+
+            <div className="mt-6 pt-4 border-t border-slate-800 text-center">
+              <p className="text-[11px] text-slate-500">
+                🔒 Privacy Secured: You will only see your own marks.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <footer className="py-3 border-t border-slate-800 text-center text-xs text-slate-500">
+        S. D. Sion Matriculation Higher Secondary School · Class 10 Portal
+      </footer>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

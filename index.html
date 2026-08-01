@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>S. D. Sion Matriculation Hr. Sec. School | Portal Login</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>"/>
+  <title>S. D. Sion Matriculation Hr. Sec. School | Portals Directory</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -12,197 +12,101 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     *{font-family:'Plus Jakarta Sans',sans-serif}
-    body{background:#06091a}
+    body{
+      background:#070b19;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(37,99,235,0.22) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(124,58,237,0.2) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(16,185,129,0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(245,158,11,0.12) 0px, transparent 50%);
+      background-attachment:fixed;
+    }
     .glass{background:rgba(15,23,42,.85);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07)}
     .school-banner{background:linear-gradient(135deg,#0a1628 0%,#0f2044 40%,#0a1628 100%);border-bottom:3px solid #b8860b}
-    .gmail-input{transition:all .2s;border:2px solid rgba(255,255,255,.06)}
-    .gmail-input:focus{border-color:#4285f4;box-shadow:0 0 0 4px rgba(66,133,244,.15);outline:none}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    .float{animation:float 4s ease-in-out infinite}
   </style>
 </head>
 <body class="min-h-screen text-white flex flex-col">
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect } = React;
-
-const DEFAULT_STUDENTS_10 = [
-  { studentId:"STU-1001", name:"Alex Johnson",    standard:"10", section:"A", gmail:"alex.johnson@gmail.com",     rollNo:"10-A-01", attendance:94.5, avatarUrl:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&q=80" },
-  { studentId:"STU-1002", name:"Sophia Chen",     standard:"10", section:"B", gmail:"sophia.chen@gmail.com",      rollNo:"10-B-02", attendance:98.0, avatarUrl:"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80" },
-  { studentId:"STU-1006", name:"Priya Sharma",    standard:"10", section:"A", gmail:"priya.sharma@gmail.com",     rollNo:"10-A-06", attendance:91.0, avatarUrl:"https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&q=80" },
-];
-
-const DEFAULT_STUDENTS_12 = [
-  { studentId:"STU-1003", name:"Marcus Vance",    group:"Computer Science", section:"A", gmail:"marcus.vance@gmail.com",     rollNo:"12-A-03", attendance:88.2, avatarUrl:"https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&q=80" },
-  { studentId:"STU-1004", name:"Emily Davis",     group:"Bio-Maths",        section:"B", gmail:"emily.davis@gmail.com",      rollNo:"12-B-04", attendance:76.5, avatarUrl:"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" },
-  { studentId:"STU-1008", name:"Ananya Rao",      group:"Commerce",         section:"C", gmail:"ananya.rao@gmail.com",       rollNo:"12-C-08", attendance:96.0, avatarUrl:"https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80" },
-];
-
-function quickLogin10(studentId){
-  const match = DEFAULT_STUDENTS_10.find(s=>s.studentId===studentId);
-  if(match){
-    localStorage.setItem('ap_auth','student');
-    localStorage.setItem('ap_current_student',match.studentId);
-    localStorage.setItem('ap_current_gmail',match.gmail);
-    window.location.href = 'student10.html';
-  }
-}
-
-function quickLogin12(studentId){
-  const match = DEFAULT_STUDENTS_12.find(s=>s.studentId===studentId);
-  if(match){
-    localStorage.setItem('ap_auth','student');
-    localStorage.setItem('ap_current_student',match.studentId);
-    localStorage.setItem('ap_current_gmail',match.gmail);
-    window.location.href = 'student12.html';
-  }
-}
-
-function quickAdmin(){
-  localStorage.setItem('ap_auth','admin');
-  window.location.href = 'admin.html';
-}
-
 function App(){
-  const [role, setRole]=useState('std10');
-  const [gmail, setGmail]=useState('');
-  const [passcode, setPasscode]=useState('');
-  const [error, setError]=useState('');
-
-  const submit=e=>{
-    e.preventDefault();setError('');
-    const trimmed=gmail.trim().toLowerCase();
-    if(role==='std10'){
-      const match=DEFAULT_STUDENTS_10.find(s=>s.gmail.toLowerCase()===trimmed);
-      if(!match){setError('Gmail not found in Std 10 records.');return;}
-      quickLogin10(match.studentId);
-    } else if(role==='std12'){
-      const match=DEFAULT_STUDENTS_12.find(s=>s.gmail.toLowerCase()===trimmed);
-      if(!match){setError('Gmail not found in Std 12 records.');return;}
-      quickLogin12(match.studentId);
-    } else {
-      if(passcode!=='admin123'){setError('Wrong passcode (admin123)');return;}
-      quickAdmin();
-    }
-  };
-
   return(
     <div className="min-h-screen flex flex-col">
-
-      {/* School Header Banner */}
-      <div className="school-banner py-5 px-4 text-center relative overflow-hidden bg-slate-900/90 border-b border-slate-800">
+      {/* Banner */}
+      <div className="school-banner py-5 px-4 text-center relative overflow-hidden bg-slate-900/90">
         <div className="relative max-w-4xl mx-auto flex flex-col items-center justify-center">
           <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-2xl border border-white/20 inline-block max-w-full">
             <img src="school_logo.png" alt="S. D. Sion Matriculation Higher Secondary School" className="h-16 sm:h-24 max-w-full object-contain mx-auto"
               onError={e=>{e.target.src='school_logo.jpg';}}/>
           </div>
-          <p className="text-xs tracking-widest text-indigo-300/80 uppercase font-semibold mt-2.5">Academic Performance Portal · 2025–2026</p>
+          <p className="text-xs tracking-widest text-indigo-300/80 uppercase font-semibold mt-2.5">Official Academic Portals · 2025–2026</p>
         </div>
       </div>
 
-      {/* Main Login Box */}
-      <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
-        <div className="w-full max-w-lg relative z-10">
-
-          {/* Role Navigation */}
-          <div className="grid grid-cols-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-1.5 mb-5 gap-1.5">
-            <button onClick={()=>{setRole('std10');setError('');}}
-              className={`py-3 rounded-xl text-xs font-bold transition-all ${role==='std10'?'bg-blue-600 text-white shadow-lg shadow-blue-600/30':'text-slate-400 hover:text-white'}`}>
-              📘 Std 10 Portal
-            </button>
-            <button onClick={()=>{setRole('std12');setError('');}}
-              className={`py-3 rounded-xl text-xs font-bold transition-all ${role==='std12'?'bg-purple-600 text-white shadow-lg shadow-purple-600/30':'text-slate-400 hover:text-white'}`}>
-              📕 Std 12 Portal
-            </button>
-            <button onClick={()=>{setRole('admin');setError('');}}
-              className={`py-3 rounded-xl text-xs font-bold transition-all ${role==='admin'?'bg-amber-600 text-white shadow-lg shadow-amber-600/30':'text-slate-400 hover:text-white'}`}>
-              🛡️ Admin Portal
-            </button>
+      {/* Portal Selection Cards */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl space-y-6">
+          <div className="text-center">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Select Your Academic Portal</h1>
+            <p className="text-xs text-slate-400 mt-1">Each portal has a completely separate, dedicated login system</p>
           </div>
 
-          <div className="glass rounded-3xl p-6 sm:p-8 shadow-2xl">
-            {role === 'std10' && (
-              <>
-                <div className="mb-5 text-center">
-                  <h2 className="text-2xl font-extrabold text-white">Standard 10 Student Login</h2>
-                  <p className="text-xs text-blue-300 mt-1 font-mono">5 Subjects: 1. Tamil · 2. English · 3. Maths · 4. Science · 5. Social</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Standard 10 Portal */}
+            <div className="glass rounded-3xl p-6 border-t-4 border-blue-500 hover:border-blue-400 transition-all hover:scale-[1.02] flex flex-col justify-between">
+              <div>
+                <div className="w-14 h-14 rounded-2xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-3xl mb-4 float">
+                  📘
                 </div>
+                <h2 className="text-xl font-extrabold text-white">Standard 10 Portal</h2>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Dedicated portal for Class 10 SSLC students. Includes 5 Core Subjects (Tamil, English, Maths, Science, Social) and Class Remarks.
+                </p>
+              </div>
+              <a href="login10.html" className="mt-6 w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs rounded-2xl shadow-lg shadow-blue-600/30 text-center block">
+                Open Std 10 Login →
+              </a>
+            </div>
 
-                <div className="space-y-2 mb-6">
-                  {DEFAULT_STUDENTS_10.map(s=>(
-                    <button key={s.id} onClick={()=>quickLogin10(s.studentId)}
-                      className="w-full flex items-center justify-between p-3.5 rounded-2xl border bg-blue-900/30 border-blue-500/30 hover:border-blue-400 transition-all hover:scale-[1.01]">
-                      <div className="flex items-center gap-3">
-                        <img src={s.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover"/>
-                        <div className="text-left">
-                          <p className="font-bold text-white text-sm">{s.name}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">{s.gmail}</p>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 text-xs font-bold rounded-xl text-white bg-blue-600">Open 10th Portal →</span>
-                    </button>
-                  ))}
+            {/* Standard 12 Portal */}
+            <div className="glass rounded-3xl p-6 border-t-4 border-purple-500 hover:border-purple-400 transition-all hover:scale-[1.02] flex flex-col justify-between">
+              <div>
+                <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-3xl mb-4 float">
+                  📕
                 </div>
-              </>
-            )}
+                <h2 className="text-xl font-extrabold text-white">Standard 12 Portal</h2>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Dedicated portal for Class 12 HSC Senior Secondary students. Includes TNEA Engineering Cut-off Calculator and Stream marks.
+                </p>
+              </div>
+              <a href="login12.html" className="mt-6 w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs rounded-2xl shadow-lg shadow-purple-600/30 text-center block">
+                Open Std 12 Login →
+              </a>
+            </div>
 
-            {role === 'std12' && (
-              <>
-                <div className="mb-5 text-center">
-                  <h2 className="text-2xl font-extrabold text-white">Standard 12 Student Login</h2>
-                  <p className="text-xs text-purple-300 mt-1">Select your Group profile (6 Subjects per Group):</p>
+            {/* Admin Portal */}
+            <div className="glass rounded-3xl p-6 border-t-4 border-amber-500 hover:border-amber-400 transition-all hover:scale-[1.02] flex flex-col justify-between">
+              <div>
+                <div className="w-14 h-14 rounded-2xl bg-amber-600/20 border border-amber-500/40 flex items-center justify-center text-3xl mb-4 float">
+                  🛡️
                 </div>
+                <h2 className="text-xl font-extrabold text-white">Admin Portal</h2>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Exclusive portal for teachers & administrators. Manage Excel uploads, student data directories, and campus announcements.
+                </p>
+              </div>
+              <a href="admin-login.html" className="mt-6 w-full py-3.5 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold text-xs rounded-2xl shadow-lg shadow-amber-600/30 text-center block">
+                Open Admin Login →
+              </a>
+            </div>
 
-                <div className="space-y-2 mb-6">
-                  {DEFAULT_STUDENTS_12.map(s=>(
-                    <button key={s.studentId} onClick={()=>quickLogin12(s.studentId)}
-                      className="w-full flex items-center justify-between p-3.5 rounded-2xl border bg-purple-900/30 border-purple-500/30 hover:border-purple-400 transition-all hover:scale-[1.01]">
-                      <div className="flex items-center gap-3">
-                        <img src={s.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover"/>
-                        <div className="text-left">
-                          <p className="font-bold text-white text-sm">{s.name}</p>
-                          <p className="text-[10px] text-purple-300 font-bold">Group: {s.group}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">{s.gmail}</p>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 text-xs font-bold rounded-xl text-white bg-purple-600">Open 12th Portal →</span>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1">
-                  <p className="font-bold text-purple-300 uppercase text-[10px]">Standard 12 Group Subject Order:</p>
-                  <p><strong className="text-white">Bio-Maths:</strong> 1. Tamil · 2. English · 3. Maths · 4. Physics · 5. Chemistry · 6. Biology</p>
-                  <p><strong className="text-white">CS Group:</strong> 1. Tamil · 2. English · 3. Maths · 4. Physics · 5. Chemistry · 6. Computer Science</p>
-                  <p><strong className="text-white">Commerce:</strong> 1. Tamil · 2. English · 3. Commerce · 4. Accountancy · 5. Economics · 6. Computer Apps</p>
-                </div>
-              </>
-            )}
-
-            {role === 'admin' && (
-              <>
-                <div className="mb-6 text-center">
-                  <div className="text-5xl mb-2">🛡️</div>
-                  <h2 className="text-2xl font-extrabold text-white">Admin Control Portal</h2>
-                  <p className="text-xs text-slate-400 mt-1">Manage Class 10 &amp; Class 12 student performance</p>
-                </div>
-                <button onClick={quickAdmin} className="w-full py-4 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-extrabold text-sm rounded-2xl shadow-xl hover:scale-[1.01] transition-all">
-                  ⚡ 1-Click Launch Admin Portal →
-                </button>
-              </>
-            )}
-
-            {role !== 'admin' && (
-              <form onSubmit={submit} className="mt-4 space-y-3">
-                <input type="email" value={gmail} onChange={e=>setGmail(e.target.value)}
-                  placeholder="Or enter registered gmail..."
-                  className="gmail-input w-full px-4 py-3 bg-slate-900/80 rounded-xl text-sm text-white placeholder-slate-500"/>
-                {error&&<div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300">{error}</div>}
-                <button type="submit" className={`w-full py-3 rounded-xl font-bold text-sm text-white ${role==='std10'?'bg-blue-600':'bg-purple-600'}`}>
-                  Sign In →
-                </button>
-              </form>
-            )}
           </div>
 
+          <p className="text-center text-xs text-slate-500 mt-4">
+            S. D. Sion Matriculation Higher Secondary School · Academic Year 2025–2026
+          </p>
         </div>
       </div>
     </div>

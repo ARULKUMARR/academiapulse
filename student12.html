@@ -12,13 +12,21 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     *{font-family:'Plus Jakarta Sans',sans-serif}
-    body{background:#08061a}
-    .glass{background:rgba(20,15,38,.8);backdrop-filter:blur(24px);border:1px solid rgba(168,85,247,.15)}
-    .glass-dark{background:rgba(8,6,26,.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(168,85,247,.1)}
+    body{
+      background:#08061a;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(124,58,237,0.25) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(236,72,153,0.2) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(16,185,129,0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(245,158,11,0.12) 0px, transparent 50%);
+      background-attachment:fixed;
+    }
+    .glass{background:rgba(20,15,38,.82);backdrop-filter:blur(24px);border:1px solid rgba(168,85,247,.25)}
+    .glass-dark{background:rgba(8,6,26,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(168,85,247,.2)}
     .school-banner{background:linear-gradient(135deg,#130a28 0%,#200f44 40%,#130a28 100%);border-bottom:3px solid #7c3aed}
     ::-webkit-scrollbar{width:5px;height:5px}
     ::-webkit-scrollbar-track{background:rgba(8,6,26,.6)}
-    ::-webkit-scrollbar-thumb{background:rgba(168,85,247,.3);border-radius:99px}
+    ::-webkit-scrollbar-thumb{background:rgba(168,85,247,.4);border-radius:99px}
     @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
     .slide-up{animation:slideUp .35s ease forwards}
   </style>
@@ -28,89 +36,44 @@
 <script type="text/babel">
 const { useState, useEffect } = React;
 
-// ─── CLASS 12 GROUPS & SUBJECT ORDERING (6 SUBJECTS PER GROUP) ─────
-const GROUP_SUBJECTS = {
-  "Bio-Maths":        ["Tamil", "English", "Mathematics", "Physics", "Chemistry", "Biology"],
-  "Computer Science": ["Tamil", "English", "Mathematics", "Physics", "Chemistry", "Computer Science"],
-  "Commerce":         ["Tamil", "English", "Commerce", "Accountancy", "Economics", "Computer Applications"]
+const STD_12_SUBJECTS = ["Physics", "Chemistry", "Mathematics", "Computer Science", "Biology", "English Core"];
+const ALL_EXAMS = ["1st Midterm", "Quarterly Exam", "2nd Midterm", "Half Yearly Exam", "3rd Midterm", "Annual Exam"];
+
+const DEFAULT_VISIBILITY = {
+  "1st Midterm": true,
+  "Quarterly Exam": false,
+  "2nd Midterm": false,
+  "Half Yearly Exam": false,
+  "3rd Midterm": false,
+  "Annual Exam": false
 };
 
 const DEFAULT_STUDENTS = [
-  { studentId:"STU-1003", name:"Marcus Vance",    group:"Computer Science", section:"A", gmail:"marcus.vance@gmail.com",     rollNo:"12-A-03", attendance:88.2, avatarUrl:"https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&q=80" },
-  { studentId:"STU-1004", name:"Emily Davis",     group:"Bio-Maths",        section:"B", gmail:"emily.davis@gmail.com",      rollNo:"12-B-04", attendance:76.5, avatarUrl:"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" },
-  { studentId:"STU-1005", name:"Liam Wilson",     group:"Computer Science", section:"A", gmail:"liam.wilson@gmail.com",      rollNo:"12-A-05", attendance:92.0, avatarUrl:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" },
-  { studentId:"STU-1008", name:"Ananya Rao",      group:"Commerce",         section:"C", gmail:"ananya.rao@gmail.com",       rollNo:"12-C-08", attendance:96.0, avatarUrl:"https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80" },
+  { studentId:"STU-1003", name:"Marcus Vance",    standard:"12", section:"A", gmail:"marcus.vance@gmail.com",     rollNo:"12-A-03", attendance:88.2, avatarUrl:"https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&q=80" },
+  { studentId:"STU-1004", name:"Emily Davis",     standard:"12", section:"B", gmail:"emily.davis@gmail.com",      rollNo:"12-B-04", attendance:76.5, avatarUrl:"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80" },
+  { studentId:"STU-1005", name:"Liam Wilson",     standard:"12", section:"A", gmail:"liam.wilson@gmail.com",      rollNo:"12-A-05", attendance:92.0, avatarUrl:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" },
+  { studentId:"STU-1008", name:"Ananya Rao",      standard:"12", section:"C", gmail:"ananya.rao@gmail.com",       rollNo:"12-C-08", attendance:96.0, avatarUrl:"https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80" },
 ];
 
 const DEFAULT_MARKS = [
-  // Marcus Vance STU-1003 (Computer Science Group)
-  {studentId:"STU-1003",group:"Computer Science",subject:"Tamil",           examType:"Mid-Term",marksObtained:85, maxMarks:100,date:"2026-07-10"},
-  {studentId:"STU-1003",group:"Computer Science",subject:"English",         examType:"Mid-Term",marksObtained:80, maxMarks:100,date:"2026-07-12"},
-  {studentId:"STU-1003",group:"Computer Science",subject:"Mathematics",    examType:"Mid-Term",marksObtained:88, maxMarks:100,date:"2026-07-14"},
-  {studentId:"STU-1003",group:"Computer Science",subject:"Physics",         examType:"Mid-Term",marksObtained:82, maxMarks:100,date:"2026-07-16"},
-  {studentId:"STU-1003",group:"Computer Science",subject:"Chemistry",       examType:"Mid-Term",marksObtained:79, maxMarks:100,date:"2026-07-18"},
-  {studentId:"STU-1003",group:"Computer Science",subject:"Computer Science",examType:"Mid-Term",marksObtained:94, maxMarks:100,date:"2026-07-20"},
-
-  // Emily Davis STU-1004 (Bio-Maths Group)
-  {studentId:"STU-1004",group:"Bio-Maths",subject:"Tamil",                  examType:"Mid-Term",marksObtained:82, maxMarks:100,date:"2026-07-10"},
-  {studentId:"STU-1004",group:"Bio-Maths",subject:"English",                examType:"Mid-Term",marksObtained:74, maxMarks:100,date:"2026-07-12"},
-  {studentId:"STU-1004",group:"Bio-Maths",subject:"Mathematics",           examType:"Mid-Term",marksObtained:62, maxMarks:100,date:"2026-07-14"},
-  {studentId:"STU-1004",group:"Bio-Maths",subject:"Physics",                examType:"Mid-Term",marksObtained:65, maxMarks:100,date:"2026-07-16"},
-  {studentId:"STU-1004",group:"Bio-Maths",subject:"Chemistry",              examType:"Mid-Term",marksObtained:70, maxMarks:100,date:"2026-07-18"},
-  {studentId:"STU-1004",group:"Bio-Maths",subject:"Biology",                examType:"Mid-Term",marksObtained:78, maxMarks:100,date:"2026-07-20"},
-
-  // Liam Wilson STU-1005 (Computer Science Group)
-  {studentId:"STU-1005",group:"Computer Science",subject:"Tamil",           examType:"Mid-Term",marksObtained:90, maxMarks:100,date:"2026-07-10"},
-  {studentId:"STU-1005",group:"Computer Science",subject:"English",         examType:"Mid-Term",marksObtained:84, maxMarks:100,date:"2026-07-12"},
-  {studentId:"STU-1005",group:"Computer Science",subject:"Mathematics",    examType:"Mid-Term",marksObtained:93, maxMarks:100,date:"2026-07-14"},
-  {studentId:"STU-1005",group:"Computer Science",subject:"Physics",         examType:"Mid-Term",marksObtained:91, maxMarks:100,date:"2026-07-16"},
-  {studentId:"STU-1005",group:"Computer Science",subject:"Chemistry",       examType:"Mid-Term",marksObtained:87, maxMarks:100,date:"2026-07-18"},
-  {studentId:"STU-1005",group:"Computer Science",subject:"Computer Science",examType:"Mid-Term",marksObtained:96, maxMarks:100,date:"2026-07-20"},
-
-  // Ananya Rao STU-1008 (Commerce Group)
-  {studentId:"STU-1008",group:"Commerce",subject:"Tamil",                   examType:"Mid-Term",marksObtained:94, maxMarks:100,date:"2026-07-10"},
-  {studentId:"STU-1008",group:"Commerce",subject:"English",                 examType:"Mid-Term",marksObtained:93, maxMarks:100,date:"2026-07-12"},
-  {studentId:"STU-1008",group:"Commerce",subject:"Commerce",                examType:"Mid-Term",marksObtained:98, maxMarks:100,date:"2026-07-14"},
-  {studentId:"STU-1008",group:"Commerce",subject:"Accountancy",             examType:"Mid-Term",marksObtained:97, maxMarks:100,date:"2026-07-16"},
-  {studentId:"STU-1008",group:"Commerce",subject:"Economics",               examType:"Mid-Term",marksObtained:95, maxMarks:100,date:"2026-07-18"},
-  {studentId:"STU-1008",group:"Commerce",subject:"Computer Applications",   examType:"Mid-Term",marksObtained:99, maxMarks:100,date:"2026-07-20"},
+  {studentId:"STU-1003",standard:"12",subject:"Physics",            examType:"1st Midterm",      marksObtained:44, maxMarks:50, date:"2026-06-15"},
+  {studentId:"STU-1003",standard:"12",subject:"Chemistry",          examType:"1st Midterm",      marksObtained:41, maxMarks:50, date:"2026-06-18"},
+  {studentId:"STU-1003",standard:"12",subject:"Mathematics",       examType:"1st Midterm",      marksObtained:47, maxMarks:50, date:"2026-06-20"},
+  {studentId:"STU-1003",standard:"12",subject:"Computer Science",   examType:"1st Midterm",      marksObtained:49, maxMarks:50, date:"2026-06-22"},
+  {studentId:"STU-1003",standard:"12",subject:"English Core",       examType:"1st Midterm",      marksObtained:43, maxMarks:50, date:"2026-06-24"},
 ];
 
-// ─── STRICTLY 3 NOTICES (JUST LIKE 10TH STANDARD) ─────────────────
-const DEFAULT_NOTICES = [
-  {
-    id: "NTC12-01",
-    category: "Remarks",
-    icon: "📝",
-    title: "Teacher's Academic & Higher Secondary Remarks",
-    date: "2026-07-30",
-    priority: "High",
-    description: "Strong performance in core group subjects. Continue practicing Tamil essay writing and time management for HSC board examination."
-  },
-  {
-    id: "NTC12-02",
-    category: "Upcoming Events",
-    icon: "📅",
-    title: "Career Counseling & Entrance Seminar 2026",
-    date: "2026-08-08",
-    priority: "Urgent",
-    description: "Orientation session on TNEA Engineering, NEET Medical, and CA Commerce admissions in main auditorium for Class 12 students."
-  },
-  {
-    id: "NTC12-03",
-    category: "Others",
-    icon: "📌",
-    title: "Practical Examinations & Special Class Schedule",
-    date: "2026-07-28",
-    priority: "General",
-    description: "Science laboratories and Computer labs will remain open until 7:30 PM for Class 12 practical record work and revision."
-  }
+const DEFAULT_SLIPTESTS = [
+  {id:"ST-201", studentId:"STU-1003", standard:"12", subject:"Physics",          testName:"Slip Test 1", marksObtained:22, maxMarks:25, date:"2026-07-20"},
+  {id:"ST-202", studentId:"STU-1003", standard:"12", subject:"Chemistry",        testName:"Slip Test 1", marksObtained:21, maxMarks:25, date:"2026-07-22"},
+  {id:"ST-203", studentId:"STU-1003", standard:"12", subject:"Mathematics",     testName:"Slip Test 1", marksObtained:24, maxMarks:25, date:"2026-07-25"},
+  {id:"ST-204", studentId:"STU-1003", standard:"12", subject:"Computer Science", testName:"Slip Test 1", marksObtained:25, maxMarks:25, date:"2026-07-27"},
 ];
 
 function seedData(){
-  localStorage.setItem('ap_students_v12', JSON.stringify(DEFAULT_STUDENTS));
-  localStorage.setItem('ap_marks_v12', JSON.stringify(DEFAULT_MARKS));
-  localStorage.setItem('ap_notices_v12', JSON.stringify(DEFAULT_NOTICES));
+  if(!localStorage.getItem('ap_students_v12')) localStorage.setItem('ap_students_v12', JSON.stringify(DEFAULT_STUDENTS));
+  if(!localStorage.getItem('ap_marks_v12'))    localStorage.setItem('ap_marks_v12', JSON.stringify(DEFAULT_MARKS));
+  if(!localStorage.getItem('ap_sliptests_v12')) localStorage.setItem('ap_sliptests_v12', JSON.stringify(DEFAULT_SLIPTESTS));
 }
 
 const gradeInfo = pct => {
@@ -124,68 +87,111 @@ const gradeInfo = pct => {
 function App(){
   const [student, setStudent]=useState(null);
   const [marks, setMarks]=useState([]);
-  const [notices, setNotices]=useState([]);
+  const [slipTests, setSlipTests]=useState([]);
   const [tab, setTab]=useState('dashboard');
   const [examFilter, setExamFilter]=useState('All');
+  const [examVis, setExamVis]=useState(DEFAULT_VISIBILITY);
+  
+  // Slip Test Modal Form State
+  const [showSlipModal, setShowSlipModal]=useState(false);
+  const [slipForm, setSlipForm]=useState({
+    subject:'Physics',
+    testName:'Slip Test 2',
+    marksObtained:'',
+    maxMarks:'25',
+    date: new Date().toISOString().split('T')[0]
+  });
 
   useEffect(()=>{
     seedData();
-    let currentId=localStorage.getItem('ap_current_student');
+    const currentId=localStorage.getItem('ap_current_student');
+    const currentGmail=localStorage.getItem('ap_current_gmail');
     const students=JSON.parse(localStorage.getItem('ap_students_v12')||'[]');
-    let found=students.find(s=>s.studentId===currentId);
     
-    if(!found){
-      found = students[0];
-      localStorage.setItem('ap_current_student', found.studentId);
-    }
+    const found=students.find(s=>s.studentId===currentId && s.gmail.toLowerCase()===(currentGmail||'').toLowerCase());
+    if(!found){ window.location.href='login12.html'; return; }
 
     setStudent(found);
+
+    // Read Admin Exam Visibility settings
+    const visSettings = JSON.parse(localStorage.getItem('ap_exam_visibility') || '{}');
+    const std12Vis = visSettings.std12 || DEFAULT_VISIBILITY;
+    setExamVis(std12Vis);
+
     const allMarks=JSON.parse(localStorage.getItem('ap_marks_v12')||'[]');
-    setMarks(allMarks.filter(m=>m.studentId===found.studentId));
-    setNotices(JSON.parse(localStorage.getItem('ap_notices_v12')||'[]'));
+    // Filter marks so ONLY published/visible exam types are shown to student!
+    const visibleMarks = allMarks.filter(m=>m.studentId===found.studentId && (std12Vis[m.examType] !== false));
+    setMarks(visibleMarks);
+
+    const allSlip=JSON.parse(localStorage.getItem('ap_sliptests_v12')||'[]');
+    setSlipTests(allSlip.filter(st=>st.studentId===found.studentId));
   },[]);
 
   if(!student) return null;
 
-  const groupSubjects = GROUP_SUBJECTS[student.group] || GROUP_SUBJECTS["Bio-Maths"];
-  const exams=['All',...new Set(marks.map(m=>m.examType))];
-  const filteredMarks=examFilter==='All'?marks:marks.filter(m=>m.examType===examFilter);
+  const handleAddSlipTest = e => {
+    e.preventDefault();
+    const ob = parseFloat(slipForm.marksObtained);
+    const mx = parseFloat(slipForm.maxMarks);
+    if(isNaN(ob) || isNaN(mx) || mx <= 0 || ob > mx) return;
 
-  // Group marks by exact 6 subjects in order
-  const subjectMap={};
-  groupSubjects.forEach(s=>{ subjectMap[s] = {ob:0, mx:0, records:[]}; });
+    const newTest = {
+      id: `ST-${Date.now()}`,
+      studentId: student.studentId,
+      standard: '12',
+      subject: slipForm.subject,
+      testName: slipForm.testName,
+      marksObtained: ob,
+      maxMarks: mx,
+      date: slipForm.date
+    };
 
-  filteredMarks.forEach(m=>{
-    if(subjectMap[m.subject]){
-      subjectMap[m.subject].ob+=m.marksObtained;
-      subjectMap[m.subject].mx+=m.maxMarks;
-      subjectMap[m.subject].records.push(m);
-    }
-  });
+    const allSlip=JSON.parse(localStorage.getItem('ap_sliptests_v12')||'[]');
+    const updated = [newTest, ...allSlip];
+    localStorage.setItem('ap_sliptests_v12', JSON.stringify(updated));
 
-  const totalOb=marks.reduce((a,m)=>a+m.marksObtained,0);
-  const totalMx=marks.reduce((a,m)=>a+m.maxMarks,0);
-  const overall=totalMx?Math.round(totalOb/totalMx*100):0;
+    setSlipTests(updated.filter(st=>st.studentId===student.studentId));
+    setShowSlipModal(false);
+    setSlipForm({subject:'Physics', testName:'Slip Test 2', marksObtained:'', maxMarks:'25', date:new Date().toISOString().split('T')[0]});
+  };
 
-  // Cut-off calculation for Bio-Maths / CS
-  const mathAvg = subjectMap['Mathematics'] ? Math.round(subjectMap['Mathematics'].ob/subjectMap['Mathematics'].mx*100) : 0;
-  const phyAvg  = subjectMap['Physics']     ? Math.round(subjectMap['Physics'].ob/subjectMap['Physics'].mx*100)     : 0;
-  const chemAvg = subjectMap['Chemistry']   ? Math.round(subjectMap['Chemistry'].ob/subjectMap['Chemistry'].mx*100) : 0;
-  const cutoff  = Math.round((mathAvg + (phyAvg/2) + (chemAvg/2)) * 10) / 10;
+  // Published Exam List for Filter Buttons
+  const publishedExams = ["All", ...ALL_EXAMS.filter(e => examVis[e] !== false)];
+
+  const filteredMarks = examFilter === 'All' ? marks : marks.filter(m => m.examType === examFilter);
+
+  // Slip test calculations
+  const slipOb = slipTests.reduce((a, st) => a + st.marksObtained, 0);
+  const slipMx = slipTests.reduce((a, st) => a + st.maxMarks, 0);
+  const slipPct = slipMx ? Math.round((slipOb / slipMx) * 100) : 0;
+
+  // Exam averages & Cut-off
+  const mathMark = marks.find(m=>m.subject==='Mathematics');
+  const phyMark  = marks.find(m=>m.subject==='Physics');
+  const chemMark = marks.find(m=>m.subject==='Chemistry');
+
+  const mathP = mathMark ? Math.round(mathMark.marksObtained / mathMark.maxMarks * 100) : 0;
+  const phyP  = phyMark  ? Math.round(phyMark.marksObtained  / phyMark.maxMarks  * 100) : 0;
+  const chemP = chemMark ? Math.round(chemMark.marksObtained / chemMark.maxMarks * 100) : 0;
+  const cutoff = Math.round((mathP + (phyP / 2) + (chemP / 2)) * 10) / 10;
+
+  const totalOb = marks.reduce((a, m) => a + m.marksObtained, 0);
+  const totalMx = marks.reduce((a, m) => a + m.maxMarks, 0);
+  const overall = totalMx ? Math.round((totalOb / totalMx) * 100) : 0;
 
   return(
     <div className="min-h-screen flex flex-col">
       {/* Banner */}
-      <div className="school-banner py-4 px-4 text-center relative overflow-hidden bg-slate-900/90">
+      <div className="school-banner py-5 px-4 text-center relative overflow-hidden">
         <div className="max-w-4xl mx-auto flex flex-col items-center justify-center">
-          <div className="bg-white rounded-2xl p-2.5 shadow-xl border border-white/20 inline-block max-w-full">
-            <img src="school_logo.png" alt="S. D. Sion Matriculation" className="h-14 max-w-full object-contain mx-auto" onError={e=>{e.target.src='school_logo.jpg';}}/>
+          <div className="bg-white/95 rounded-2xl p-3 shadow-2xl border border-white/20 inline-block max-w-full">
+            <img src="school_logo.png" alt="S. D. Sion Matriculation" className="h-16 max-w-full object-contain mx-auto" onError={e=>{e.target.src='school_logo.jpg';}}/>
           </div>
-          <p className="text-[11px] tracking-widest text-purple-300 uppercase font-bold mt-2">Standard 12 Senior Secondary Portal</p>
+          <p className="text-xs tracking-widest text-purple-300 uppercase font-bold mt-2.5">Standard 12 Senior Secondary Academic Portal</p>
         </div>
       </div>
 
-      {/* Nav */}
+      {/* Header Nav */}
       <header className="sticky top-0 z-40 glass-dark">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -194,13 +200,13 @@ function App(){
           </div>
 
           <nav className="flex gap-1">
-            {[['dashboard','🏠 Dashboard'],['marks','📊 6 Subjects Marks'],['cutoff','🎯 Cut-off Tracker'],['notices','🔔 Notices (3)']].map(([id,label])=>(
+            {[['dashboard','🏠 Dashboard'],['sliptests','📝 Slip Tests'],['marks','📊 Exam Marks'],['cutoff','🎯 Cut-off Calculator']].map(([id,label])=>(
               <button key={id} onClick={()=>setTab(id)}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${tab===id?'bg-purple-600 text-white shadow-md shadow-purple-600/30':'text-slate-400 hover:text-white'}`}>{label}</button>
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${tab===id?'bg-purple-600 text-white shadow-lg shadow-purple-600/30':'text-slate-400 hover:text-white'}`}>{label}</button>
             ))}
           </nav>
 
-          <a href="index.html" className="text-xs text-rose-400 hover:text-rose-300 font-bold border border-rose-500/20 px-2.5 py-1 rounded-lg">Sign Out 🚪</a>
+          <a href="login12.html" className="text-xs text-rose-400 hover:text-rose-300 font-bold border border-rose-500/20 px-2.5 py-1 rounded-lg">Sign Out 🚪</a>
         </div>
       </header>
 
@@ -216,157 +222,228 @@ function App(){
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h1 className="text-2xl font-extrabold text-white">{student.name}</h1>
-                    <span className="px-3 py-1 text-xs font-extrabold bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full">
-                      Group: {student.group}
-                    </span>
+                    <span className="px-2.5 py-0.5 text-xs font-extrabold bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full">Section {student.section}</span>
                   </div>
                   <p className="text-xs text-slate-400 mt-1">Roll No: <strong className="text-white">{student.rollNo}</strong> · Gmail: <strong className="text-white">{student.gmail}</strong></p>
                 </div>
-                <div className="bg-purple-600/20 border border-purple-500/40 rounded-2xl px-5 py-3 text-center">
-                  <p className="text-2xl font-extrabold text-white">{overall}%</p>
-                  <p className="text-[10px] font-bold text-purple-300 uppercase">Class 12 Average</p>
+
+                <div className="flex gap-3">
+                  <div className="bg-purple-600/20 border border-purple-500/40 rounded-2xl px-4 py-3 text-center">
+                    <p className="text-2xl font-extrabold text-white">{overall}%</p>
+                    <p className="text-[10px] font-bold text-purple-300 uppercase">Published Exam Avg</p>
+                  </div>
+                  <div className="bg-amber-600/20 border border-amber-500/40 rounded-2xl px-4 py-3 text-center">
+                    <p className="text-2xl font-extrabold text-amber-400">{cutoff}</p>
+                    <p className="text-[10px] font-bold text-amber-300 uppercase">TNEA Cut-off</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Exact 6 Subjects Performance */}
-            <div className="glass rounded-3xl p-6">
-              <h2 className="text-lg font-bold text-white mb-4 flex items-center justify-between">
-                <span>📕 Class 12 Subjects ({student.group} Group — 6 Subjects)</span>
-                <span className="text-xs text-purple-300 font-mono">1. Tamil · 2. English · 3. {groupSubjects[2]} · 4. {groupSubjects[3]} · 5. {groupSubjects[4]} · 6. {groupSubjects[5]}</span>
-              </h2>
-              <div className="space-y-4">
-                {groupSubjects.map((subj, idx)=>{
-                  const d=subjectMap[subj] || {ob:0, mx:0};
-                  const pct=d.mx?Math.round(d.ob/d.mx*100):0;
-                  const g=gradeInfo(pct);
-                  return(
-                    <div key={subj} className="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center font-extrabold text-purple-300 text-xs">
-                          {idx+1}
-                        </div>
-                        <div>
-                          <p className="font-extrabold text-white text-base">{subj}</p>
-                          <p className="text-[11px] text-slate-400">{student.group} Group Subject</p>
-                        </div>
-                      </div>
+            {/* Slip Test Summary Card */}
+            <div className="glass rounded-3xl p-6 bg-gradient-to-r from-purple-950/40 to-pink-950/40 border border-purple-500/30">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">📝</span>
+                    <h2 className="text-xl font-extrabold text-white">Class 12 Slip Test Total Summary</h2>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">Manually record slip test marks and track total performance</p>
+                </div>
+                <button onClick={()=>setShowSlipModal(true)}
+                  className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-600/30 hover:scale-[1.02] transition-all">
+                  + Add Manual Slip Test Mark
+                </button>
+              </div>
 
-                      <div className="flex items-center gap-4 flex-1 max-w-md">
-                        <div className="flex-1">
-                          <div className="h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
-                            <div className={`h-full rounded-full ${g.bar}`} style={{width:`${pct}%`}}/>
-                          </div>
-                        </div>
-                        <span className="font-extrabold text-white text-sm w-12 text-right">{pct}%</span>
-                        <span className={`px-2.5 py-0.5 rounded-lg text-xs font-extrabold border ${g.badge}`}>{g.label}</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Total Tests</p>
+                  <p className="text-2xl font-extrabold text-white mt-1">{slipTests.length}</p>
+                </div>
+                <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Marks Obtained</p>
+                  <p className="text-2xl font-extrabold text-purple-400 mt-1">{slipOb}</p>
+                </div>
+                <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Total Max Marks</p>
+                  <p className="text-2xl font-extrabold text-slate-300 mt-1">{slipMx}</p>
+                </div>
+                <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Total Percentage</p>
+                  <p className="text-2xl font-extrabold text-amber-400 mt-1">{slipPct}%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Subject Summary */}
+            <div className="glass rounded-3xl p-6">
+              <h2 className="text-lg font-bold text-white mb-4">📕 Class 12 Senior Secondary Performance</h2>
+              <div className="space-y-3">
+                {STD_12_SUBJECTS.map((subj, idx)=>{
+                  const mySubjectMarks = marks.filter(m=>m.subject===subj);
+                  const ob = mySubjectMarks.reduce((a,m)=>a+m.marksObtained,0);
+                  const mx = mySubjectMarks.reduce((a,m)=>a+m.maxMarks,0);
+                  const pct = mx ? Math.round(ob/mx*100) : 0;
+                  const g = gradeInfo(pct);
+                  return(
+                    <div key={subj} className="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <span className="w-7 h-7 rounded-lg bg-purple-600/30 text-purple-300 font-extrabold text-xs flex items-center justify-center">{idx+1}</span>
+                        <span className="font-bold text-white text-base">{subj}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-extrabold text-white text-sm">{pct}%</span>
+                        <span className={`px-2.5 py-0.5 rounded-lg text-xs font-bold border ${g.badge}`}>{g.label}</span>
                       </div>
                     </div>
                   );
                 })}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Notice Preview */}
+        {/* SLIP TESTS TAB */}
+        {tab==='sliptests'&&(
+          <div className="space-y-5 slide-up">
             <div className="glass rounded-3xl p-6">
-              <h2 className="text-lg font-bold text-white mb-4">🔔 Notice Board (3 Categories)</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {notices.map(n=>(
-                  <div key={n.id} className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">{n.icon}</span>
-                      <span className="text-xs font-bold text-purple-300 uppercase">{n.category}</span>
-                    </div>
-                    <p className="font-bold text-white text-xs mb-1">{n.title}</p>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">{n.description}</p>
-                  </div>
-                ))}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <div>
+                  <h2 className="text-xl font-bold text-white">📝 Manual Slip Test Records</h2>
+                  <p className="text-xs text-slate-400">Total Score: <strong className="text-purple-400">{slipOb} / {slipMx}</strong> ({slipPct}%)</p>
+                </div>
+                <button onClick={()=>setShowSlipModal(true)}
+                  className="px-4 py-2 bg-purple-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-600/30">
+                  + Add Slip Test Mark
+                </button>
               </div>
+
+              {slipTests.length===0 ? (
+                <p className="text-center text-slate-500 py-8 text-xs">No slip test marks added yet. Click "+ Add Slip Test Mark" above.</p>
+              ) : (
+                <div className="overflow-x-auto rounded-2xl border border-slate-800">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold">
+                      <tr>
+                        <th className="py-3 px-4">Test Name</th>
+                        <th className="py-3 px-4">Subject</th>
+                        <th className="py-3 px-4 text-center">Marks Obtained</th>
+                        <th className="py-3 px-4 text-center">Max Marks</th>
+                        <th className="py-3 px-4 text-center">%</th>
+                        <th className="py-3 px-4 text-center">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {slipTests.map(st=>{
+                        const p = Math.round(st.marksObtained / st.maxMarks * 100);
+                        return(
+                          <tr key={st.id} className="hover:bg-slate-800/30">
+                            <td className="py-3 px-4 font-bold text-white">{st.testName}</td>
+                            <td className="py-3 px-4 font-semibold text-purple-300">{st.subject}</td>
+                            <td className="py-3 px-4 text-center font-extrabold text-purple-400">{st.marksObtained}</td>
+                            <td className="py-3 px-4 text-center text-slate-400">{st.maxMarks}</td>
+                            <td className="py-3 px-4 text-center font-bold text-white">{p}%</td>
+                            <td className="py-3 px-4 text-center font-mono text-slate-400">{st.date}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* ══ 6 SUBJECTS MARKS TAB ══ */}
+        {/* EXAM MARKS TAB WITH ONLY PUBLISHED EXAMS */}
         {tab==='marks'&&(
           <div className="space-y-5 slide-up">
             <div className="glass rounded-3xl p-6">
-              <div className="flex items-center justify-between mb-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                 <div>
-                  <h2 className="text-xl font-bold text-white">📊 Class 12 Marks Breakdown</h2>
-                  <p className="text-xs text-purple-300 mt-0.5">Group: {student.group} (6 Subjects in Order)</p>
+                  <h2 className="text-xl font-bold text-white">📊 Class 12 Exam Marks</h2>
+                  <p className="text-xs text-slate-400">Published Exams: <strong className="text-emerald-400">{publishedExams.filter(e=>e!=='All').join(', ')}</strong></p>
                 </div>
-                <div className="flex gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                  {exams.map(e=>(
+                <div className="flex flex-wrap gap-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800">
+                  {publishedExams.map(e=>(
                     <button key={e} onClick={()=>setExamFilter(e)}
-                      className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${examFilter===e?'bg-purple-600 text-white':'text-slate-400 hover:text-white'}`}>{e}</button>
+                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${examFilter===e?'bg-purple-600 text-white shadow-md shadow-purple-600/30':'text-slate-400 hover:text-white'}`}>
+                      {e}
+                    </button>
                   ))}
                 </div>
               </div>
 
-              <div className="overflow-x-auto rounded-2xl border border-slate-800">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold">
-                    <tr>
-                      <th className="py-3 px-4">#</th>
-                      <th className="py-3 px-4">Subject</th>
-                      <th className="py-3 px-4">Exam Type</th>
-                      <th className="py-3 px-4 text-center">Marks Obtained</th>
-                      <th className="py-3 px-4 text-center">Max Marks</th>
-                      <th className="py-3 px-4 text-center">%</th>
-                      <th className="py-3 px-4 text-center">Grade</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60">
-                    {filteredMarks.map((m,i)=>{
-                      const pct=Math.round(m.marksObtained/m.maxMarks*100);
-                      const g=gradeInfo(pct);
-                      const sNo = groupSubjects.indexOf(m.subject) + 1;
-                      return(
-                        <tr key={i} className="hover:bg-slate-800/30">
-                          <td className="py-3 px-4 font-bold text-purple-400">{sNo > 0 ? sNo : '-'}</td>
-                          <td className="py-3 px-4 font-bold text-white">{m.subject}</td>
-                          <td className="py-3 px-4 text-slate-300">{m.examType}</td>
-                          <td className="py-3 px-4 text-center font-extrabold text-white">{m.marksObtained}</td>
-                          <td className="py-3 px-4 text-center text-slate-400">{m.maxMarks}</td>
-                          <td className="py-3 px-4 text-center font-bold text-white">{pct}%</td>
-                          <td className="py-3 px-4 text-center"><span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${g.badge}`}>{g.label}</span></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              {filteredMarks.length===0 ? (
+                <p className="text-center text-slate-500 py-8 text-xs">No published exam marks found for this filter.</p>
+              ) : (
+                <div className="overflow-x-auto rounded-2xl border border-slate-800">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold">
+                      <tr>
+                        <th className="py-3 px-4">#</th>
+                        <th className="py-3 px-4">Subject</th>
+                        <th className="py-3 px-4">Exam Type</th>
+                        <th className="py-3 px-4 text-center">Marks Obtained</th>
+                        <th className="py-3 px-4 text-center">Max Marks</th>
+                        <th className="py-3 px-4 text-center">%</th>
+                        <th className="py-3 px-4 text-center">Grade</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {filteredMarks.map((m,i)=>{
+                        const p=Math.round(m.marksObtained/m.maxMarks*100);
+                        const g=gradeInfo(p);
+                        const sNo = STD_12_SUBJECTS.indexOf(m.subject) + 1;
+                        return(
+                          <tr key={i} className="hover:bg-slate-800/30">
+                            <td className="py-3 px-4 font-bold text-purple-400">{sNo > 0 ? sNo : '-'}</td>
+                            <td className="py-3 px-4 font-bold text-white">{m.subject}</td>
+                            <td className="py-3 px-4">
+                              <span className="px-2 py-0.5 rounded-md font-bold text-[10px] bg-purple-600/20 text-purple-300 border border-purple-500/30">
+                                {m.examType}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center font-extrabold text-white">{m.marksObtained}</td>
+                            <td className="py-3 px-4 text-center text-slate-400">{m.maxMarks}</td>
+                            <td className="py-3 px-4 text-center font-bold text-white">{p}%</td>
+                            <td className="py-3 px-4 text-center"><span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${g.badge}`}>{g.label}</span></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* ══ CUTOFF TRACKER ══ */}
+        {/* CUTOFF TAB */}
         {tab==='cutoff'&&(
           <div className="space-y-5 slide-up">
             <div className="glass rounded-3xl p-6 sm:p-8">
-              <h2 className="text-xl font-bold text-white mb-2">🎯 Higher Secondary Engineering Cut-off Tracker</h2>
-              <p className="text-xs text-slate-400 mb-6">TNEA Engineering Cut-off Formula: Maths + (Physics ÷ 2) + (Chemistry ÷ 2)</p>
+              <h2 className="text-xl font-bold text-white mb-2">🎯 TNEA Engineering Cut-off Calculator</h2>
+              <p className="text-xs text-slate-400 mb-6">Cut-off Formula = Mathematics + (Physics ÷ 2) + (Chemistry ÷ 2)</p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Mathematics</p>
-                  <p className="text-2xl font-extrabold text-white mt-1">{mathAvg} / 100</p>
-                  <p className="text-[10px] text-purple-400 mt-1">Full 100 Marks</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Mathematics Score</p>
+                  <p className="text-2xl font-extrabold text-white mt-1">{mathP} / 100</p>
                 </div>
                 <div className="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Physics (÷ 2)</p>
-                  <p className="text-2xl font-extrabold text-white mt-1">{phyAvg} / 100 <span className="text-xs text-purple-300">({phyAvg/2})</span></p>
-                  <p className="text-[10px] text-purple-400 mt-1">50 Marks Weightage</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Physics Score (÷ 2)</p>
+                  <p className="text-2xl font-extrabold text-white mt-1">{phyP} / 100 <span className="text-xs text-purple-300">({phyP/2})</span></p>
                 </div>
                 <div className="bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Chemistry (÷ 2)</p>
-                  <p className="text-2xl font-extrabold text-white mt-1">{chemAvg} / 100 <span className="text-xs text-purple-300">({chemAvg/2})</span></p>
-                  <p className="text-[10px] text-purple-400 mt-1">50 Marks Weightage</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Chemistry Score (÷ 2)</p>
+                  <p className="text-2xl font-extrabold text-white mt-1">{chemP} / 100 <span className="text-xs text-purple-300">({chemP/2})</span></p>
                 </div>
               </div>
 
               <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 border border-purple-500/40 rounded-2xl p-6 text-center">
-                <p className="text-xs font-extrabold text-purple-300 uppercase tracking-widest">TNEA Engineering Cut-off Score</p>
+                <p className="text-xs font-extrabold text-purple-300 uppercase tracking-widest">Calculated TNEA Cut-off</p>
                 <p className="text-5xl font-black text-amber-300 mt-2">{cutoff}</p>
                 <p className="text-xs text-slate-300 mt-2">Maximum possible: 200.0</p>
               </div>
@@ -374,37 +451,62 @@ function App(){
           </div>
         )}
 
-        {/* ══ EXACTLY 3 NOTICES TAB ══ */}
-        {tab==='notices'&&(
-          <div className="space-y-4 slide-up">
-            <div className="glass rounded-3xl p-6">
-              <h2 className="text-xl font-bold text-white mb-2">🔔 Standard 12 Notices &amp; Communications</h2>
-              <p className="text-xs text-slate-400 mb-6">3 Categories: 1. Remarks · 2. Upcoming Events · 3. Others</p>
-              
-              <div className="space-y-4">
-                {notices.map((n, idx)=>(
-                  <div key={n.id} className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/40 transition-all">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-xs font-bold text-purple-300">{idx+1}</span>
-                        <span className="text-lg">{n.icon}</span>
-                        <span className="text-xs font-extrabold text-purple-400 uppercase tracking-wider">{n.category}</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-400">{n.date}</span>
-                    </div>
-                    <h3 className="font-extrabold text-white text-base mb-1">{n.title}</h3>
-                    <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">{n.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
       </main>
 
-      <footer className="border-t border-slate-800 py-3 text-center text-xs text-slate-500">
-        S. D. Sion Matric. Hr. Sec. School · Standard 12 Portal ({student.group} Group)
+      {/* Manual Slip Test Modal */}
+      {showSlipModal&&(
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+          <div className="glass rounded-3xl w-full max-w-md p-6 border border-purple-500/40 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">📝 Add Slip Test Mark</h3>
+              <button onClick={()=>setShowSlipModal(false)} className="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+
+            <form onSubmit={handleAddSlipTest} className="space-y-3.5">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Subject</label>
+                <select value={slipForm.subject} onChange={e=>setSlipForm({...slipForm, subject:e.target.value})}
+                  className="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-purple-500">
+                  {STD_12_SUBJECTS.map(s=><option key={s}>{s}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Test Name</label>
+                <input type="text" value={slipForm.testName} onChange={e=>setSlipForm({...slipForm, testName:e.target.value})} required
+                  placeholder="e.g. Slip Test 1" className="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"/>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Marks Obtained</label>
+                  <input type="number" step="0.5" value={slipForm.marksObtained} onChange={e=>setSlipForm({...slipForm, marksObtained:e.target.value})} required
+                    placeholder="e.g. 23" className="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"/>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Max Marks</label>
+                  <input type="number" value={slipForm.maxMarks} onChange={e=>setSlipForm({...slipForm, maxMarks:e.target.value})} required
+                    placeholder="e.g. 25" className="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"/>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Date</label>
+                <input type="date" value={slipForm.date} onChange={e=>setSlipForm({...slipForm, date:e.target.value})} required
+                  className="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"/>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button type="button" onClick={()=>setShowSlipModal(false)} className="flex-1 py-2.5 bg-slate-800 text-slate-300 text-xs font-bold rounded-xl">Cancel</button>
+                <button type="submit" className="flex-1 py-2.5 bg-purple-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-600/30">Save Test Mark</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <footer className="py-3 border-t border-slate-800 text-center text-xs text-slate-500">
+        S. D. Sion Matric. Hr. Sec. School · Standard 12 Portal
       </footer>
     </div>
   );
